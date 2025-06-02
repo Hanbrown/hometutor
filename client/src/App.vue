@@ -1,0 +1,60 @@
+<script setup>
+import Student from "./components/Student.vue";
+import RateMenu from "./components/RateMenu.vue";
+import AddStudent from "./components/AddStudent.vue";
+import AuthMenu from "./components/AuthMenu.vue";
+</script>
+
+<template>
+    <main id="main">
+        <div class="tile">
+            <header>
+                <span class="header-left"><a class="screen-reader-only">Skip to Content</a></span>
+                <h3>Student Management System</h3>
+                <auth-menu></auth-menu>
+            </header>
+            <div id="student-table">
+                <table>
+                    <tbody>
+                        <tr class="table-header">
+                            <th></th>
+                            <th>Student</th>
+                            <th>All</th>
+                            <th></th>
+                            <th><add-student></add-student></th>
+                        </tr>
+                        <student v-for="(student, index) in Students"
+                            :key="student.id"
+                            :id="student.id"
+                            :color_index="index"
+                            :fname="student.fname" 
+                            :lname="student.lname" 
+                            :active="student.active"
+                        ></student>
+                    </tbody>
+                </table>
+            </div>
+            <rate-menu></rate-menu>
+        </div>
+    </main>
+</template>
+
+<script>
+export default {
+    name: "app",
+    components: {
+        Student,
+        RateMenu,
+        AddStudent,
+    },
+    data() {
+        return {
+            Students: [
+                {id: "0339", fname: "Pranav", lname: "Rao", active: "true"},
+                {id: "9090", fname: "Sujesh", lname: "Sterdhasahastrabudeshanticurry", active: "false"},
+                {id: "9091", fname: "Rujula", lname: "Rao", active: "true"},
+            ],
+        }
+    }
+};
+</script>
