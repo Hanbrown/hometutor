@@ -8,7 +8,7 @@ import vueDevTools from "vite-plugin-vue-devtools";
 export default defineConfig({
     plugins: [vue(), vueDevTools()],
     root: "client",
-    publicDir: "client/public",
+    publicDir: "client",
     build: {
         outDir: "../build",
     },
@@ -17,7 +17,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            "@": fileURLToPath(new URL("./client/src", import.meta.url)),
+            "@": fileURLToPath(new URL("./client/", import.meta.url)),
         },
     },
 });

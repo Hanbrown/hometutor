@@ -1,8 +1,8 @@
 <script setup>
-import Student from "./components/Student.vue";
-import RateMenu from "./components/RateMenu.vue";
-import AddStudent from "./components/AddStudent.vue";
-import AuthMenu from "./components/AuthMenu.vue";
+import Student from "../components/Student.vue";
+import RateMenu from "../components/RateMenu.vue";
+import AddStudent from "../components/AddStudent.vue";
+import AuthMenu from "../components/AuthMenu.vue";
 </script>
 
 <template>
@@ -23,10 +23,9 @@ import AuthMenu from "./components/AuthMenu.vue";
                             <th></th>
                             <th><add-student></add-student></th>
                         </tr>
-                        <student v-for="(student, index) in Students"
+                        <student v-for="(student) in Students"
                             :key="student.id"
                             :id="student.id"
-                            :color_index="index"
                             :fname="student.fname" 
                             :lname="student.lname" 
                             :active="student.active"

@@ -32,6 +32,10 @@ app.get("/", (req, res) => {
     res.sendFile(path.resolve(__dirname, "index.html"));
 });
 
+app.get("/manage", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "manage.html"));
+});
+
 
 /** Start server **/
 const port = process.env.PORT || 8081;
