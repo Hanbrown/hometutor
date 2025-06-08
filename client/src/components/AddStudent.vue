@@ -1,5 +1,5 @@
 <template>
-    <button class="btn btn-add" @click="onClick">+</button>
+    <button class="btn btn-add" @click="onClick"><font-awesome-icon icon="plus" /></button>
 </template>
 
 <script>

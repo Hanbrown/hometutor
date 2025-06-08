@@ -16,7 +16,7 @@ import Session from "../components/Session.vue";
                 <auth-menu></auth-menu>
             </header>
             <div class="session-controls">
-                <button class="btn btn-invoice" >Print Invoice</button>
+                <button class="btn btn-invoice" ><font-awesome-icon icon="print" /></button>
                 <button class="btn btn-add-class" >New Class</button>
                 <span class="date-range">
                     <input type="text" id="date-start">
@@ -32,7 +32,7 @@ import Session from "../components/Session.vue";
                         <tr class="table-header">
                             <th>
                                 <details>
-                                    <summary>VV</summary>
+                                    <summary><font-awesome-icon icon="fingerprint" /><font-awesome-icon icon="list-check" /></summary>
                                     <div class="check-list">
                                         <ul class="check-list-ul">
                                             <li class="check-list-li"><a href="#">All</a></li>
