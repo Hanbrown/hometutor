@@ -1,24 +1,28 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
-const Rate = require("./Rate");
+import { model, Schema } from "mongoose";
 
 const SessionSchema = new Schema({
+    number: {
+        type: Number,
+        required: true,
+        unique: true,
+        default: 999,
+    },
     student: {
         type: Number,
         required: true,
     },
     in_time: {
         type: Date,
+        required: false,
+    },
+    out_time: {
+        type: Date,
         required: true,
         default: Date.now,
         unique: true,
     },
-    out_time: {
-        type: Date,
-        required: false,
-    },
     rate: {
-        type: Rate.schema,
+        type: Number,
         required: false,
     },
     paid: {
@@ -28,4 +32,5 @@ const SessionSchema = new Schema({
     },
 });
 
-module.exports = Session = mongoose.model("session", SessionSchema);
+const Session = model("session", SessionSchema);
+export default Session;

@@ -3,6 +3,11 @@ import Student from "../components/Student.vue";
 import RateMenu from "../components/RateMenu.vue";
 import AddStudent from "../components/AddStudent.vue";
 import AuthMenu from "../components/AuthMenu.vue";
+import NewStudent from "../components/NewStudent.vue";
+
+const toggle_new_student = () => {
+    document.getElementById("new-student-menu").classList.toggle("hidden");
+}
 </script>
 
 <template>
@@ -19,9 +24,10 @@ import AuthMenu from "../components/AuthMenu.vue";
                     <span class="table-text student-name-header">Student</span>
                     <span class="table-text student-status">All</span>
                     <span class="table-text student-del-header"></span>
-                    <span class="table-text student-btn-header"><add-student></add-student></span>
+                    <span class="table-text student-btn-header"><add-student @click="toggle_new_student"></add-student></span>
                 </div>
                 <div class="row-container">
+                        <new-student id="new-student-menu" class="hidden" @cancelled="toggle_new_student"></new-student>
                         <student v-for="(student) in Students"
                             :key="student.id"
                             :id="student.id"
@@ -43,15 +49,16 @@ export default {
         Student,
         RateMenu,
         AddStudent,
+        NewStudent,
     },
-    data() {
-        return {
-            Students: [
-                {id: "0339", fname: "Pranav", lname: "Rao", active: "true"},
-                {id: "9090", fname: "Sujesh", lname: "Sterdhasahastrabudeshanticurry", active: "false"},
-                {id: "9091", fname: "Rujula", lname: "Rao", active: "true"},
-            ],
-        }
-    }
+    // data() {
+    //     return {
+    //         Students: [
+    //             {id: "0339", fname: "Pranav", lname: "Rao", active: "true"},
+    //             {id: "9090", fname: "Sujesh", lname: "Sterdhasahastrabudeshanticurry", active: "false"},
+    //             {id: "9091", fname: "Rujula", lname: "Rao", active: "true"},
+    //         ],
+    //     }
+    // }
 };
 </script>

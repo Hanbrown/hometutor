@@ -1,8 +1,7 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+import { model, Schema } from "mongoose";
 
-const RateSchema = new Schema({
-    cost: {
+const UserSchema = new Schema({
+    rate: {
         type: Number,
         required: true,
         default: 60.00
@@ -14,4 +13,5 @@ const RateSchema = new Schema({
     }
 });
 
-module.exports = Rate = mongoose.model("rate", RateSchema);
+const User = model("user", UserSchema);
+export default User;

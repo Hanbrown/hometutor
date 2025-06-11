@@ -1,8 +1,7 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+import { model, Schema } from "mongoose";
 
 const StudentSchema = new Schema({
-    id: {
+    id_short: {
         type: Number,
         required: true,
         default: Math.floor(Math.random())*10000,
@@ -25,4 +24,5 @@ const StudentSchema = new Schema({
     }
 });
 
-module.exports = Student = mongoose.model("student", StudentSchema);
+const Student = model("student", StudentSchema);
+export default Student;
