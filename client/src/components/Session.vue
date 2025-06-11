@@ -1,6 +1,7 @@
 <script setup>
 import ManageBtn from './ManageBtn.vue';
 import DeleteStudent from './DeleteStudent.vue';
+import { format_date, format_time, get_charge } from "../assets/util";
 
 const openDetails = (class_id) => {
     document.querySelector(`#details-${class_id}`).classList.toggle("hidden");
@@ -19,7 +20,7 @@ const openDetails = (class_id) => {
             <span class="table-text time-table class-in">{{ format_time(time_in) }}</span>
             <span class="table-text time-table class-in">{{ format_time(time_out) }}</span>
             <span class="table-text rate-table">${{ rate }}</span>
-            <span class="table-text charge-table">${{ getCharge(time_in, time_out, rate) }}</span>
+            <span class="table-text charge-table">${{ get_charge(time_in, time_out, rate) }}</span>
             <span class="table-text btn-table"><manage-btn @clicked="openDetails(id)" should_switch=true></manage-btn></span>
         </div>
         <div :id="`details-${id}`" class="row-bottom hidden">
@@ -43,29 +44,6 @@ const openDetails = (class_id) => {
 </template>
 
 <script>
-const format_date = (msec) => {
-    let temp_date = new Date(msec);
-    return `${temp_date.getMonth()+1}/${temp_date.getDate()}/${temp_date.getFullYear()}`;
-}
-
-const format_time = (msec) => {
-    let temp_date = new Date(msec);
-    return `${temp_date.getHours().toString().padStart(2, "0")}:${temp_date.getMinutes().toString().padStart(2, "0")}`;
-}
-
-/**
- * Find the total payable amount for this class
- * @param start The start time of the class
- * @param end The finish time of the class
- * @param rate The hourly rate in dollars
- */
-const getCharge = (start, end, rate) => {
-    let msec_diff = end - start;
-    let hrs = Math.ceil(msec_diff / 1000 / 60 / 60);
-    let charge = rate * hrs;
-    return charge;
-}
-
 export default {
     name: "Session",
     props: {

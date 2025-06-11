@@ -9,7 +9,7 @@
                 <li v-for="(student) in students"
                             :key="student.id"
                  class="name-list-li">
-                    <a :href="student.id">{{ student.fname }}</a>
+                    <a :href="`/manage:${student.id}`">{{ student.fname }}</a>
                 </li>
             </ul>
         </div>

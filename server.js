@@ -1,7 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 
-import path from "path";
+import { dirname, resolve } from "node:path";
 
 import dotenv from "dotenv" // For .env file
 dotenv.config();
@@ -29,11 +29,11 @@ const app = express();
 app.use(express.static("build"));
 
 app.get("/", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "index.html"));
+    res.sendFile(resolve("build", "index.html"));
 });
 
-app.get("/manage", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "manage.html"));
+app.get("/manage/:student", (req, res) => {
+    res.sendFile(resolve("build", "manage.html"));
 });
 
 

@@ -1,3 +1,4 @@
+import { resolve } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 
 import { defineConfig } from "vite";
@@ -11,6 +12,12 @@ export default defineConfig({
     publicDir: "client",
     build: {
         outDir: "../build",
+        rollupOptions: {
+            input: {
+                main: resolve("client", "index.html"),
+                manage: resolve("client", "manage.html"),
+            }
+        }
     },
     server: {
         open: "client",

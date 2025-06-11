@@ -2,9 +2,8 @@
 import DeleteStudent from "./DeleteStudent.vue";
 import ManageBtn from "./ManageBtn.vue";
 
-// TODO: Perform a post request
 const goToStudent = (student_id) => {
-    window.location.href = "/manage";
+    window.location.href = `/manage/${student_id}`;
 }
 </script>
 
