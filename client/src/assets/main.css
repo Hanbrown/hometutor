@@ -20,7 +20,12 @@ main {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
+}
+
+label, a, p, h4 {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 20px;
 }
 
 header {
@@ -70,6 +75,7 @@ header summary {
     border: solid #222 2px;
     width: 17rem;
     background-color: #ddd;
+    box-shadow: #222 0px 3px 7px;
 }
 
 .name-list-ul {
@@ -122,24 +128,90 @@ header summary {
 }
 
 .table-header {
-    margin-bottom: 15px;
+    display: flex;
+    flex-direction: row;
+    background-color: #aaa;
 }
 
-.table-header th {
+.session-row:nth-of-type(even) {
+    background-color: #aaa;
+}
+.session-row:nth-of-type(odd) {
+    background-color: #ccc;
+}
+
+.row-top {
+    height: 44px;
+    width: 100%;
+    display: flex;
+}
+
+.row-bottom {
+    width: 100%;
+    display: flex;
+}
+
+.table-header span {
     border-top: solid #222 3px;
     border-bottom: solid #222 3px;
-    text-align: left;
-    padding-left: 10px;
 }
 
-td {
-    padding: 10px;
+.table-text {
+    text-align: center;
+    line-height: 44px;
+    vertical-align: middle;
+}
+
+.table-input {
+    text-align: center;
+    line-height: 44px;
+    vertical-align: middle;
+}
+
+/* 10 10 20 20 15 15 10 */
+.check-table {
+    flex: 10%;
+}
+.id-table {
+    flex: 10%;
+}
+.date-table {
+    flex: 20%;
+}
+.time-table {
+    flex: 20%;
+}
+.rate-table {
+    flex: 15%;
+}
+.charge-table {
+    flex: 15%;
+}
+.btn-table {
+    flex: 10%;
+}
+
+/* 10 10 20 20 15 15 10 */
+/*   20             25  */
+.table-input input {
+    width: 80%;
+}
+
+.check-table-input {
+    flex: 20%;
+    text-align: center;
+}
+.check-table-input input {
+    width: 20%;
+}
+
+.btn-table-input {
+    flex: 25%;
+    text-align: left;
 }
 
 #student-table {
     margin-top: 25px;
-    max-height: 300px;
-    overflow-y: scroll;
 }
 
 #student-table * {
@@ -155,8 +227,6 @@ td {
 
 #session-table {
     margin-top: 25px;
-    max-height: 550px;
-    overflow-y: scroll;
 }
 
 #session-table * {
@@ -164,22 +234,42 @@ td {
     font-size: 20px;
 }
 
-#session-table table {
-    width: 100%;
-    background-color: #aaa;
-    border-collapse: collapse;
+.row-container {
+    max-height: 450px;
+    overflow-y: scroll;
 }
 
-#session-table td {
+.student-id-header {
+    flex: 10%;
+}
+.student-name-header {
+    flex: 60%;
+    text-align: left;
+}
+.student-del-header {
+    flex: 9%;
+}
+.student-btn-header {
+    flex: 6%;
+}
+
+/* 10 65 10 10 5 */
+.student-id {
+    flex: 10%;
     text-align: center;
 }
-
-#session-table th {
-    text-align: center;
-}
-
 .student-name {
-    min-width: 386px;
+    flex: 60%;
+}
+.student-status {
+    flex: 15%;
+    text-align: left;
+}
+.student-btn {
+    flex: 10%;
+}
+.student-del {
+    flex: 5%;
 }
 
 .btn {
@@ -199,6 +289,7 @@ td {
 }
 
 .btn-manage {
+    width: 40px;
     background-color: #6fd1d4;
 }
 .btn-manage:hover {
@@ -215,13 +306,25 @@ td {
 }
 
 .btn-add {
-    background-color: #179732;
+    background-color: #4aca66;
     width: 35px;
 }
 .btn-add:hover {
     background-color: #1b8532;
 }
 .btn-add:active {
+    background-color: #196e2c;
+    color: #ddd;
+}
+
+.btn-save {
+    background-color: #4aca66;
+    width: 35px;
+}
+.btn-save:hover {
+    background-color: #1b8532;
+}
+.btn-save:active {
     background-color: #196e2c;
     color: #ddd;
 }
@@ -269,8 +372,10 @@ td {
     border: solid 2px #222;
 }
 
-tr {
-    background-color: #aaa;
+.student-row {
+    display: flex;
+    line-height: 44px;
+    vertical-align: middle;
 }
 
 .student-row:nth-child(odd) {
@@ -280,10 +385,10 @@ tr {
     background-color: #ccc;
 }
 
-#session-table tr:nth-child(4n+2) {
+#session-table tr:nth-of-type(4n+2) {
     background-color: #ccc;
 }
-#session-table tr:nth-child(4n+3) {
+#session-table tr:nth-of-type(4n+3) {
     background-color: #ccc;
 }
 
@@ -300,6 +405,18 @@ tr {
     border: solid #222 2px;
     width: 8rem;
     background-color: #ddd;
+    box-shadow: #222 0px 2px 5px;
+}
+
+.table-input {
+    width: 100%;
+}
+
+.unpaid:nth-of-type(odd) {
+    background-color: #dac658 !important;
+}
+.unpaid:nth-of-type(even) {
+    background-color: #bca941 !important;
 }
 
 .check-list-ul {
@@ -326,11 +443,6 @@ tr {
     background-color: #ffe4c4;
 }
 
-.class-detail {
-    height: 60px;
-    background-color: inherit;
-}
-
 .session-controls {
     margin: 10px;
 }
@@ -338,6 +450,20 @@ tr {
 .session-controls input{
     font-size: 20px;
     width: 9rem;
+}
+
+.edit-name {
+    margin: 5px;
+}
+
+.edit-name label {
+    margin: 10px 5px 10px 10px;
+}
+
+.edit-name input{
+    font-size: 20px;
+    width: 9rem;
+    margin: 10px 10px 10px 0px;
 }
 
 .date-range {

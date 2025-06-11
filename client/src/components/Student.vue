@@ -9,13 +9,13 @@ const goToStudent = (student_id) => {
 </script>
 
 <template>
-    <tr :id="`row-${id}`" class="student-row">
-        <td class="student-id">{{ id }}</td>
-        <td class="student-name">{{ fname }} {{ lname }}</td>
-        <td class="student-status">{{ (active === "true")? "Active" : "Inactive" }}</td>
-        <td><manage-btn @clicked="goToStudent(id)"></manage-btn></td>
-        <td><delete-student></delete-student></td>
-    </tr>
+    <div :id="`row-${id}`" class="student-row">
+        <span class="student-id">{{ id }}</span>
+        <span class="student-name">{{ fname }} {{ lname }}</span>
+        <span class="student-status">{{ (active === "true")? "Active" : "Inactive" }}</span>
+        <span class="student-btn"><manage-btn @clicked="goToStudent(id)"></manage-btn></span>
+        <span class="student-del"><delete-student></delete-student></span>
+    </div>
 </template>
 
 <script>

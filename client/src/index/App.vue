@@ -14,15 +14,14 @@ import AuthMenu from "../components/AuthMenu.vue";
                 <auth-menu></auth-menu>
             </header>
             <div id="student-table">
-                <table>
-                    <tbody>
-                        <tr class="table-header">
-                            <th></th>
-                            <th>Student</th>
-                            <th>All</th>
-                            <th></th>
-                            <th><add-student></add-student></th>
-                        </tr>
+                <div class="table-header">
+                    <span class="table-text student-id-header"></span>
+                    <span class="table-text student-name-header">Student</span>
+                    <span class="table-text student-status">All</span>
+                    <span class="table-text student-del-header"></span>
+                    <span class="table-text student-btn-header"><add-student></add-student></span>
+                </div>
+                <div class="row-container">
                         <student v-for="(student) in Students"
                             :key="student.id"
                             :id="student.id"
@@ -30,8 +29,7 @@ import AuthMenu from "../components/AuthMenu.vue";
                             :lname="student.lname" 
                             :active="student.active"
                         ></student>
-                    </tbody>
-                </table>
+                </div>
             </div>
             <rate-menu></rate-menu>
         </div>
