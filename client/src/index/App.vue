@@ -29,11 +29,11 @@ const toggle_new_student = () => {
                 <div class="row-container">
                         <new-student id="new-student-menu" class="hidden" @cancelled="toggle_new_student"></new-student>
                         <student v-for="(student) in Students"
-                            :key="student.id"
-                            :id="student.id"
+                            :key="student.id_short"
+                            :id="student.id_short"
                             :fname="student.fname" 
                             :lname="student.lname" 
-                            :active="student.active"
+                            :active="student.active ? `true` : `false`"
                         ></student>
                 </div>
             </div>
@@ -51,14 +51,21 @@ export default {
         AddStudent,
         NewStudent,
     },
-    // data() {
-    //     return {
-    //         Students: [
-    //             {id: "0339", fname: "Pranav", lname: "Rao", active: "true"},
-    //             {id: "9090", fname: "Sujesh", lname: "Sterdhasahastrabudeshanticurry", active: "false"},
-    //             {id: "9091", fname: "Rujula", lname: "Rao", active: "true"},
-    //         ],
-    //     }
-    // }
+    async mounted() {
+        this.getStudents()
+    },
+    methods: {
+        async getStudents() {
+            const res = await fetch("http://localhost:8081/api/students/read");
+            const res_json = await res.json();
+            console.log(res_json);
+            this.Students = res_json.data;
+        }
+    },
+    data() {
+        return {
+            Students: [],
+        }
+    }
 };
 </script>

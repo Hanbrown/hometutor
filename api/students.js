@@ -31,7 +31,7 @@ router.get("/read/:id", async (req, res) => {
 
 router.get("/read", async (req, res) => {
     try {
-        const data = await Student.find().sort({ lname: -1 });
+        const data = await Student.find().sort({ lname: 1 });
         const data_res = data.map(datum => {
             return {
                 id_short: datum.id_short,
