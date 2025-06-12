@@ -3,6 +3,7 @@ import DeleteStudent from "./DeleteStudent.vue";
 import ManageBtn from "./ManageBtn.vue";
 
 const goToStudent = (student_id) => {
+    localStorage.setItem("student", student_id);
     window.location.href = `/manage/${student_id}`;
 }
 </script>

@@ -4,7 +4,21 @@ import SaveButton from './SaveButton.vue';
 
 const emit = defineEmits(["cancelled"]);
 
+const disableSaves = () => {
+    const buttons = document.querySelectorAll(".btn-save");
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].setAttribute("disabled", "disabled");
+    }
+}
+const enableSaves = () => {
+    const buttons = document.querySelectorAll(".btn-save");
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].removeAttribute("disabled");
+    }
+}
+
 const save_new_student = async () => {
+    disableSaves();
     const fname = document.getElementById("new_student_fname").value;
     const lname = document.getElementById("new_student_lname").value;
     const active = document.getElementById("new_student_active").checked;
@@ -22,7 +36,13 @@ const save_new_student = async () => {
             }),
         });
         const data = await res.json();
-        console.log(data);
+        if (data.error !== true) {
+            window.location.reload();
+        }
+        else {
+            window.alert("Error, please try again");
+            enableSaves();
+        }
     }
     catch (err) {
         console.log(err);

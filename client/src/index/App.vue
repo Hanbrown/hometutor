@@ -55,6 +55,7 @@ export default {
         this.getStudents()
     },
     methods: {
+        // TODO: Eventually send the cookie here
         async getStudents() {
             const res = await fetch("http://localhost:8081/api/students/read");
             const res_json = await res.json();

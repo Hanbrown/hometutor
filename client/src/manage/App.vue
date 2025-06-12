@@ -3,6 +3,26 @@ import AuthMenu from "../components/AuthMenu.vue";
 import StudentMenu from "../components/StudentMenu.vue";
 import Session from "../components/Session.vue";
 import NameMenu from "../components/NameMenu.vue";
+
+const add_session = async () => {
+    const res = await fetch(`http://localhost:8081/api/sessions/add`, {
+        method: "post",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            student: Number(localStorage.getItem("student")),
+            in_time: Date.now()-(1000*60*60),
+            out_time: Date.now(),
+            rate: 65,
+            paid: false,
+        }),
+    });
+    const res_json = await res.json();
+    console.log(res_json);
+    window.location.reload();
+}
 </script>
 
 <template>
@@ -13,12 +33,12 @@ import NameMenu from "../components/NameMenu.vue";
                     ><a class="screen-reader-only">Skip to Content</a
                     ><a class="nav-back btn" href="/"><font-awesome-icon icon="caret-left" />&nbsp;Back</a></span
                 >
-                <student-menu></student-menu>
+                <student-menu :current="CurrentStudent" :students="AllStudents"></student-menu>
                 <auth-menu></auth-menu>
             </header>
             <div class="session-controls">
                 <button class="btn btn-invoice" ><font-awesome-icon icon="print" /></button>
-                <button class="btn btn-add-class" >New Class</button>
+                <button class="btn btn-add-class" @click="add_session" >New Class</button>
                 <span class="date-range">
                     <input type="text" id="date-start">
                     &ndash;
@@ -51,7 +71,16 @@ import NameMenu from "../components/NameMenu.vue";
                     <span class="table-text btn-table"><add-student></add-student></span>
                 </div>
                 <div class="row-container">
-                    <session selected="false" id="1" paid="true"></session>
+                    <session v-for="(sesh) in Sessions"
+                            :key="sesh.number"
+                            :selected="false"
+                            :paid="sesh.paid"
+                            :id="sesh.number"
+                            :time_in="sesh.in_time" 
+                            :time_out="sesh.out_time" 
+                            :rate="sesh.rate"
+                    >
+                    </session>
                 </div>
             </div>
             <name-menu @saved="console.log('saved')" :fname="fname" :lname="lname"></name-menu>
@@ -68,11 +97,30 @@ export default {
         Session,
         NameMenu,
     },
-    props: {
-        id:             { required: true, default: 9999, type: Number },
-        fname:          { required: false, default: "Joost", type: String },
-        lname:          { required: false, default: "Doe", type: String },
-        active:         { required: true, default: true, type: Boolean }
+    async mounted() {
+        this.getSessions(),
+        this.getStudents()
+    },
+    methods: {
+        // TODO: Eventually send the cookie here
+        async getSessions() {
+            const res = await fetch(`http://localhost:8081/api/sessions/read/${localStorage.getItem("student")}`);
+            const res_json = await res.json();
+            this.Sessions = res_json.data;
+        },
+        async getStudents() {
+            const res = await fetch(`http://localhost:8081/api/students/read`);
+            const res_json = await res.json();
+            this.AllStudents = res_json.data;
+            this.CurrentStudent = res_json.data.filter(el => el.id_short === Number(localStorage.getItem("student")))[0];
+        }
+    },
+    data() {
+        return {
+            Sessions: [],
+            AllStudents: [],
+            CurrentStudent: {},
+        }
     }
 };
 </script>

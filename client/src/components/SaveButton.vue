@@ -3,7 +3,7 @@ const emit = defineEmits("saved");
 </script>
 
 <template>
-    <button class="btn btn-add" @click="emit(`saved`)"><font-awesome-icon icon="plus" /></button>
+    <button class="btn btn-save" @click="emit(`saved`)"><font-awesome-icon icon="plus" /></button>
 </template>
 
 <script>

@@ -4,7 +4,6 @@ const SessionSchema = new Schema({
     number: {
         type: Number,
         required: true,
-        unique: true,
         default: 999,
     },
     student: {
