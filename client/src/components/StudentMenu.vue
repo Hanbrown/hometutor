@@ -1,4 +1,10 @@
 <script setup>
+
+const goToStudent = (student_id) => {
+    localStorage.setItem("student", student_id);
+    window.location.href = `/manage/${student_id}`;
+}
+
 </script>
 
 <template>
@@ -9,7 +15,7 @@
                 <li v-for="(student) in students"
                             :key="student.id_short"
                  class="name-list-li">
-                    <a :href="`/manage:${student.id_short}`">{{ student.fname }}</a>
+                    <a @click="goToStudent(student.id_short)">{{ student.fname }}</a>
                 </li>
             </ul>
         </div>

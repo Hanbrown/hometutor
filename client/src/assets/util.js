@@ -24,7 +24,9 @@ export const format_time = (msec) => {
  * @param {Number} end The finish time of the class in milliseconds since epoch
  * @param {Number} rate The hourly rate in dollars
  */
-export const get_charge = (start, end, rate) => {
+export const get_charge = (start_s, end_s, rate) => {
+    const start = new Date(start_s).getTime();
+    const end = new Date(end_s).getTime();
     let msec_diff = end - start;
     let hrs = Math.ceil(msec_diff / 1000 / 60 / 60);
     let charge = rate * hrs;

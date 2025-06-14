@@ -61,7 +61,6 @@ router.post("/add", async (req, res) => {
         let number;
         const latestRecord = await Session.where({ student: Number(student) }).find().sort({ number: -1 }).limit(1);
         if (latestRecord.length === 1) {
-            console.log(latestRecord[0]);
             number = latestRecord[0].number + 1;
         }
         else {
@@ -99,14 +98,34 @@ router.post("/add", async (req, res) => {
     }
 });
 
-router.post("/update", (req, res) => {
-    console.log("Updated a student");
-    res.json({error: false, msg: "Updated a student"});
+router.post("/update", async (req, res) => {
+    try {
+        const updated = req.body;
+        const doc = await Session.where({ student: updated.student, number: updated.number }).findOne()
+        const response = await doc.overwrite(updated).save();
+        console.log(response);
+        res.json({error: false, msg: "Updated a session"});
+    }
+    catch (err) {
+        console.error(err);
+        res.json({err: true, msg: "Couldn't update the session"});
+    }
 });
 
-router.delete("/:id", (req, res) => {
-    console.log(req.params.id);
-    res.json({error: false, msg: "Deleted a student"});
+router.post("/delete", async (req, res) => {
+    try {
+        const { number, student } = req.body;
+        console.log(req.body);
+        const response = await Session.where({ number: number, student: student }).findOneAndDelete()
+        if (response === null) {
+            throw new Error("Document not found");
+        }
+        res.json({error: false, msg: "Deleted a session"});
+    }
+    catch (err) {
+        console.error(err);
+        res.json({error: true, msg: "Couldn't delete the session"});
+    }
 });
 
 export default router;

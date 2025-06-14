@@ -6,6 +6,7 @@ import { format_date, format_time, get_charge } from "../assets/util";
 const openDetails = (class_id) => {
     document.querySelector(`#details-${class_id}`).classList.toggle("hidden");
 }
+
 </script>
 
 <template>
@@ -31,13 +32,13 @@ const openDetails = (class_id) => {
                 <label :for="`${id}-paid`">Paid</label>
             </span>
             <!-- All the other fields -->
-            <span class="table-input date-table"><input type="text"></span>
-            <span class="table-input time-table class-in"><input type="text"></span>
-            <span class="table-input time-table class-in"><input type="text"></span>
-            <span class="table-input rate-table"><input type="text"></span>
+            <span class="table-input date-table"><input type="text" :id="`${id}-date`" :value="`${format_date(time_in)}`"></span>
+            <span class="table-input time-table class-in"><input type="text" :id="`${id}-intime`" :value="`${format_time(time_in)}`"></span>
+            <span class="table-input time-table class-in"><input type="text" :id="`${id}-outtime`" :value="`${format_time(time_out)}`"></span>
+            <span class="table-input rate-table"><input type="text" :id="`${id}-rate`" :value="rate"></span>
             <span class="table-input btn-table-input">
-                <button class="btn btn-add"><font-awesome-icon icon="save" /></button>&nbsp;&nbsp;
-                <delete-student></delete-student>
+                <button class="btn btn-add" @click="editSession"><font-awesome-icon icon="save" /></button>&nbsp;&nbsp;
+                <delete-student @click="deleteSession"></delete-student>
             </span>
         </div>
     </div>
@@ -58,5 +59,96 @@ export default {
         ManageBtn,
         DeleteStudent
     ],
+    methods: {
+        /**
+         * Edit a session
+         */
+        async editSession() {
+            const _paid = document.getElementById(`${this.id}-paid`).checked;
+            const _date = document.getElementById(`${this.id}-date`).value;
+            const _in_time = document.getElementById(`${this.id}-intime`).value;
+            const _out_time = document.getElementById(`${this.id}-outtime`).value;
+            const _rate = document.getElementById(`${this.id}-rate`).value;
+
+            let date = new Date(_date);
+            let start = this.parseTime(_in_time);
+            let end = this.parseTime(_out_time);
+
+            start.setDate(date.getDate());
+            start.setMonth(date.getMonth());
+            start.setFullYear(date.getFullYear());
+
+            end.setDate(date.getDate());
+            end.setMonth(date.getMonth());
+            end.setFullYear(date.getFullYear());
+
+            const res = await fetch(`http://localhost:8081/api/sessions/update`, {
+                method: "post",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    student: Number(localStorage.getItem("student")),
+                    number: this.id,
+                    paid: _paid,
+                    in_time: start,
+                    out_time: end,
+                    rate: _rate,
+                }),
+            });
+
+            const res_json = await res.json();
+            window.location.reload();
+        },
+        /**
+         * Convert a string representation of time into a Date object. The day, month, and year are today.
+         * @param time The time as a string, or 00:00 if time is invalid
+         */
+        parseTime(time) {
+            const date = new Date();
+
+            const dots = /^\d{1,2}\.\d{1,2}$/;
+            const colon = /^\d{1,2}:\d{2}/;
+            const nums = /^\d{3,4}$/;
+
+            if (dots.test(time)) {
+                let parts = time.split(".");
+                date.setHours(Number(parts[0]));
+                date.setMinutes(Number(parts[1]));
+            }
+            else if (colon.test(time)) {
+                let parts = time.split(":");
+                date.setHours(Number(parts[0]));
+                date.setMinutes(Number(parts[1]));
+            }
+            else if (nums.test(time)) {
+                let mins = time.substring(time.length-2);
+                let hrs = time.substring(0, time.length-2);
+                date.setHours(Number(hrs));
+                date.setMinutes(Number(mins));
+            }
+
+            return date;
+        },
+        /**
+         * Delete a session
+         */
+        async deleteSession() {
+            const res = await fetch(`http://localhost:8081/api/sessions/delete`, {
+                method: "post",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    number: this.id,
+                    student: localStorage.getItem("student"),
+                }),
+            });
+            const res_json = await res.json();
+            window.location.reload();
+        }
+    }
 }
 </script>

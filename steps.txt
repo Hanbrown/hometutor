@@ -1,5 +1,7 @@
-1. Create Controls for changing class values
-2. Add FontAwesome icons
-3. Create MongoDB database. Remember to also enable logging!
-4. Enable Add Student Button
-5. Enable Delete Student Button
+1. Enable logging!
+2. Add name placeholders
+3. Allow editing of students
+4. Enable Delete Student Button
+5. Implement date filtering
+6. Implement user auth
+7. Change hard-coded 65 to be the 65 stored in MongoDB
