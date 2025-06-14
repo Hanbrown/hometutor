@@ -1,7 +1,6 @@
 1. Enable logging!
-2. Add name placeholders
-3. Allow editing of students
-4. Enable Delete Student Button
-5. Implement date filtering
-6. Implement user auth
-7. Change hard-coded 65 to be the 65 stored in MongoDB
+2. Enable Delete Student Button
+3. Implement date filtering
+4. Implement user auth
+5. Change hard-coded 65 to be the 65 stored in MongoDB
+6. Implement export to file

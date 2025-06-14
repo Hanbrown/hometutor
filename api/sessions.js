@@ -44,6 +44,7 @@ router.get("/read/:student", async (req, res) => {
                 out_time: datum.out_time,
                 rate: datum.rate,
                 paid: datum.paid,
+                selected: false,
             }
         });
         res.json({ error: false, msg: "Read all sessions", data: data_res});

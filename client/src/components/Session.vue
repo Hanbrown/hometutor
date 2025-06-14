@@ -3,6 +3,8 @@ import ManageBtn from './ManageBtn.vue';
 import DeleteStudent from './DeleteStudent.vue';
 import { format_date, format_time, get_charge } from "../assets/util";
 
+const emit = defineEmits(["selected"]);
+
 const openDetails = (class_id) => {
     document.querySelector(`#details-${class_id}`).classList.toggle("hidden");
 }
@@ -10,11 +12,11 @@ const openDetails = (class_id) => {
 </script>
 
 <template>
-    <div :id="`row-${id}`" :class="`session-row ${(paid === 'true') ? '' : 'unpaid'}`">
+    <div :id="`row-${id}`" :class="`session-row ${paid ? '' : 'unpaid'}`">
         <div class="row-top">
             <!-- Show either a checked or unchecked box -->
-            <span v-if="(selected === 'true')" class="table-text check-table"><input type="checkbox" checked /></span>
-            <span v-else class="table-text check-table"><input type="checkbox" unchecked /></span>
+            <span v-if="selected" class="table-text check-table"><input type="checkbox" checked @change="emit('selected')"/></span>
+            <span v-else class="table-text check-table"><input type="checkbox" unchecked @change="emit('selected')"/></span>
             <!-- All the other fields -->
             <span class="table-text id-table">{{ id }}</span>
             <span class="table-text date-table">{{ format_date(time_in) }}</span>
@@ -27,7 +29,7 @@ const openDetails = (class_id) => {
         <div :id="`details-${id}`" class="row-bottom hidden">
             <!-- Show either a checked or unchecked box -->
             <span class="table-input check-table-input">
-                <input v-if="(paid === 'true')" type="checkbox" :id="`${id}-paid`" checked />
+                <input v-if="paid" type="checkbox" :id="`${id}-paid`" checked />
                 <input v-else type="checkbox" :id="`${id}-paid`" unchecked />
                 <label :for="`${id}-paid`">Paid</label>
             </span>

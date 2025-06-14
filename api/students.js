@@ -80,9 +80,21 @@ router.post("/add", async (req, res) => {
     }
 });
 
-router.post("/update", (req, res) => {
-    console.log("Updated a student");
-    res.json({error: false, msg: "Updated a student"});
+router.post("/update", async (req, res) => {
+    try {
+        const updated = req.body;
+        const doc = await Student.where({ id_short: updated.id_short }).findOne();
+        if (doc === null) {
+            throw new Error("No student found");
+        }
+        const response = await doc.overwrite(updated).save();
+        console.log(response);
+        res.json({error: false, msg: "Updated a student"});
+    }
+    catch (err) {
+        console.error(err);
+        res.json({error: true, msg: "Couldn't update the student"});
+    }
 });
 
 router.delete("/:id", (req, res) => {
