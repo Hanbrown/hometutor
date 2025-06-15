@@ -9,6 +9,10 @@ const router = express.Router();
 import Session from "../schemas/Session.js";
 import Student from "../schemas/Student.js";
 import User from "../schemas/User.js";
+import path from "node:path";
+const __dirname = path.resolve(path.dirname(''));
+
+import { export_pdf } from "../pdf/pdf_export.js";
 
 router.get("/read/:student/:id", async (req, res) => {
     try {
@@ -126,6 +130,23 @@ router.post("/delete", async (req, res) => {
     catch (err) {
         console.error(err);
         res.json({error: true, msg: "Couldn't delete the session"});
+    }
+});
+
+router.post("/invoice", async (req, res) => {
+    const { student, sessions } = req.body;
+    if (sessions.length < 1) {
+        res.status(400).send("No sessions selected for invoice");
+        return;
+    }
+
+    try {
+        await export_pdf(student, sessions);
+        res.download(path.resolve(__dirname, "pdf", "invoice.pdf"));
+    }
+    catch (err) {
+        console.error(err);
+        res.status(400).send("Error processing request");
     }
 });
 

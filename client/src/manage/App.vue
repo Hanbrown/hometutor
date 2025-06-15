@@ -5,24 +5,6 @@ import Session from "../components/Session.vue";
 import NameMenu from "../components/NameMenu.vue";
 import { format_date } from "../assets/util";
 
-const add_session = async () => {
-    const res = await fetch(`http://localhost:8081/api/sessions/add`, {
-        method: "post",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            student: Number(localStorage.getItem("student")),
-            in_time: Date.now()-(1000*60*60),
-            out_time: Date.now(),
-            rate: 65,
-            paid: false,
-        }),
-    });
-    const res_json = await res.json();
-    window.location.reload();
-}
 </script>
 
 <template>
@@ -37,7 +19,7 @@ const add_session = async () => {
                 <auth-menu></auth-menu>
             </header>
             <div class="session-controls">
-                <button class="btn btn-invoice" ><font-awesome-icon icon="print" />&nbsp;Invoice</button>
+                <button class="btn btn-invoice" @click="get_invoice"><font-awesome-icon icon="print" />&nbsp;Invoice</button>
                 <button class="btn btn-add-class" @click="add_session" >New Class</button>
                 <span class="date-range">
                     <input type="text" id="date-start" :value="format_date(Dates.start)">
@@ -106,6 +88,24 @@ export default {
     },
     methods: {
         // TODO: Eventually send the cookie here
+        async add_session() {
+            const res = await fetch(`http://localhost:8081/api/sessions/add`, {
+                method: "post",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    student: Number(localStorage.getItem("student")),
+                    in_time: Date.now()-(1000*60*60),
+                    out_time: Date.now(),
+                    rate: 65,
+                    paid: false,
+                }),
+            });
+            const res_json = await res.json();
+            window.location.reload();
+        },
         async getSessions() {
             const res = await fetch(`http://localhost:8081/api/sessions/read/${localStorage.getItem("student")}`);
             const res_json = await res.json();
@@ -117,6 +117,22 @@ export default {
             const res_json = await res.json();
             this.AllStudents = res_json.data;
             this.CurrentStudent = res_json.data.filter(el => el.id_short === Number(localStorage.getItem("student")))[0];
+        },
+        async get_invoice() {
+            const res = await fetch("http://localhost:8081/api/sessions/invoice", {
+                method: "post",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    student: this.CurrentStudent,
+                    sessions: this.Filtered.filter((el) => el.selected).sort((a, b) => a.number > b.number),
+                }),
+            });
+            const blob = await res.blob();
+            const file = window.URL.createObjectURL(blob);
+            window.open(file);
         },
         createDateFilter() {
             const start = this.Sessions[this.Sessions.length - 1].in_time;

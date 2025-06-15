@@ -214,7 +214,7 @@ header summary {
     margin-top: 25px;
 }
 
-#student-table * {
+#student-table {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 20px;
 }
@@ -319,7 +319,7 @@ header summary {
 
 .btn-save {
     background-color: #4aca66;
-    width: 35px;
+    min-width: 35px;
 }
 .btn-save:hover {
     background-color: #1b8532;
@@ -331,7 +331,7 @@ header summary {
 
 .btn-del {
     background-color: transparent;
-    width: 35px;
+    min-width: 35px;
 }
 .btn-del:hover {
     background-color: #970000;
@@ -372,8 +372,13 @@ header summary {
     border: solid 2px #222;
 }
 
-.student-row {
+.add-menu {
     display: flex;
+}
+.add-menu input {
+    font-size: 20px;
+}
+.student-row {
     line-height: 44px;
     vertical-align: middle;
 }
@@ -383,6 +388,24 @@ header summary {
 }
 .student-row:nth-child(even) {
     background-color: #ccc;
+}
+
+.row-del {
+    background-color: #e68a8a;
+    display: block;
+    line-height: initial;
+}
+.row-del h5 {
+    margin: 0px;
+    padding: 10px;
+}
+.row-del p {
+    font-size: 17px;
+    padding: 0px 10px;
+    margin: 5px 0px;
+}
+.row-del button {
+    margin: 10px;
 }
 
 #session-table tr:nth-of-type(4n+2) {

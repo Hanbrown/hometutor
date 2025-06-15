@@ -7,7 +7,7 @@ export default {
     name: "AddStudent",
     methods: {
         onClick() {
-            console.log("CLick it or TIcket");
+            // console.log("CLick it or TIcket");
         }
     }
 }

@@ -7,7 +7,7 @@ import express from "express";
 const router = express.Router();
 
 import Student from "../schemas/Student.js";
-import User from "../schemas/User.js";
+import Session from "../schemas/Session.js";
 
 router.get("/read/:id", async (req, res) => {
     try {
@@ -100,9 +100,24 @@ router.post("/update", async (req, res) => {
 /**
  * Delete this student and all their classes. DANGEROUS!!
  */
-router.delete("/:id", (req, res) => {
-    console.log(req.params.id);
-    res.json({error: false, msg: "Deleted a student"});
+router.delete("/delete/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+        let response = await Student.where({ id_short: id }).findOneAndDelete();
+        if (response === null) {
+            throw new Error("Document not found");
+        }
+        response = await Session.deleteMany({ student: id });
+        if (response === null) {
+            throw new Error("Document not found");
+        }
+        console.log("Deleted");
+        res.json({error: false, msg: "Deleted a student and their classes"});
+    }
+    catch (err) {
+        console.error(err);
+        res.json({error: true, msg: "Couldn't delete"});
+    }
 });
 
 export default router;

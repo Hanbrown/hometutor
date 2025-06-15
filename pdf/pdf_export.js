@@ -1,14 +1,16 @@
 import pdfkit from "pdfkit";
 import fs from "node:fs";
 import { format_date, format_time, get_charge } from "../client/src/assets/util.js";
+import path from "node:path";
+const __dirname = path.resolve(path.dirname(''));
 
-const TIMES = "times.ttf";
-const TIMES_B = "timesbd.ttf";
-const TIMES_BI = "timesbi.ttf";
-const COMIC = "comic.ttf";
-const QR_CODE = "PayPal.JPG"
+const TIMES = path.resolve(__dirname, "pdf", "times.ttf");
+const TIMES_B = path.resolve(__dirname, "pdf", "timesbd.ttf");
+const TIMES_BI = path.resolve(__dirname, "pdf", "timesbi.ttf");
+const COMIC = path.resolve(__dirname, "pdf", "comic.ttf");
+const QR_CODE = path.resolve(__dirname, "pdf", "PayPal.JPG");
 const MAX_ROWS = 10;
-const OUTFILE = "invoice.pdf";
+const OUTFILE = path.resolve(__dirname, "pdf", "invoice.pdf");
 
 const format_data = (data, headers) => {
     let rows = [];
@@ -16,9 +18,12 @@ const format_data = (data, headers) => {
 
     rows.push(headers);
     for (let i = 0; i < data.length && i < MAX_ROWS; i++) {
-        let delta = data[i].out_time - data[i].in_time;
-        let charge = get_charge(data[i].in_time.getTime(), data[i].out_time.getTime(), data[i].rate);
-        let delta_str = `${delta/3600000}:${(delta%3600000).toString().padEnd(2, "0")}`;
+        const in_time = new Date(data[i].in_time);
+        const out_time = new Date(data[i].out_time);
+
+        let delta = out_time - in_time;
+        let charge = get_charge(in_time, out_time, data[i].rate);
+        let delta_str = `${Math.floor(delta/3600000)}:${Math.floor((delta%3600000)/60000).toString().padEnd(2, "0")}`;
 
         let row = [
             format_date(data[i].in_time),
@@ -51,7 +56,7 @@ const format_data = (data, headers) => {
     return rows;
 };
 
-export const export_pdf = (student, sessions) => {
+export const export_pdf = async (student, sessions) => {
     const student_name = `${student.fname} ${student.lname}`;
     const start_date = sessions[0].in_time;
     const end_date = sessions[sessions.length-1].in_time;
@@ -60,8 +65,6 @@ export const export_pdf = (student, sessions) => {
     const headers = ["Date", "Time In", "Time Out", "Duration", "Hourly Rate", "Charge"];
 
     const doc = new pdfkit({ size: [612, 396], margin: "0.25in" });
-
-    doc.pipe(fs.createWriteStream(OUTFILE));
 
     //** Header
     doc.font(TIMES_BI).fontSize(25).text("Invoice", 36, 20);
@@ -82,7 +85,7 @@ export const export_pdf = (student, sessions) => {
 
     // QR Code, label, and Box
     doc.fontSize(12);
-    doc.image(QR_CODE, 525, 45, { width: 60 }).fillColor("blue").text(
+    doc.image(QR_CODE, 525, 46, { width: 60 }).fillColor("blue").text(
         "@VasudhaRamanarasiah",
         445,
         105,
@@ -128,11 +131,17 @@ export const export_pdf = (student, sessions) => {
     });
 
     doc.end();
+    doc.pipe(fs.createWriteStream(OUTFILE));
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve("done");
+        }, 100)
+    });
 };
 
-// const stu = { fname: "Pranav", lname: "Rao" };
+const stu = { fname: "Pranav", lname: "Rao" };
 
-// // From earliest to latest
+// From earliest to latest
 // const s = [
 //     {
 //         in_time: new Date(1749672000000),
@@ -145,4 +154,5 @@ export const export_pdf = (student, sessions) => {
 //         rate: 65.0,
 //     },
 // ];
-// export_pdf(stu, s);
+// const res = await export_pdf(stu, s);
+// console.log(res);

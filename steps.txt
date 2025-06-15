@@ -1,5 +1,3 @@
 1. Enable logging!
-2. Enable Delete Student Button
-3. Implement user auth
-4. Change hard-coded 65 to be the 65 stored in MongoDB
-5. Implement export to file
+2. Implement user auth
+3. Change hard-coded 65 to be the 65 stored in MongoDB

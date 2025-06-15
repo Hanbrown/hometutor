@@ -15,12 +15,12 @@ const goToStudent = (student_id) => {
             <span class="student-name">{{ fname }} {{ lname }}</span>
             <span class="student-status">{{ (active === "true")? "Active" : "Inactive" }}</span>
             <span class="student-btn"><manage-btn @clicked="goToStudent(id)"></manage-btn></span>
-            <span class="student-del"><delete-student></delete-student></span>
+            <span class="student-del"><delete-student @clicked="confirm_delete"></delete-student></span>
         </div>
-        <div :id="`delete-conf-${id}`" class="row-bottom hidden">
-            <h5>Delete this student?</h5>
-            <p>You cannot undo this action, and all this student's classes will also be deleted!</p>
-            <delete-student @click=""></delete-student>
+        <div :id="`delete-conf-${id}`" class="row-bottom row-del hidden">
+            <h5>Delete entry for {{ fname }} {{ lname }}?</h5>
+            <p>You cannot undo this action, <strong>and all of {{ fname }}'s classes will also be deleted!</strong></p>
+            <delete-student @clicked="do_delete" :long="true"></delete-student>
         </div>
     </div>
     
@@ -39,6 +39,17 @@ export default {
     components: [
         DeleteStudent,
         ManageBtn
-    ]
+    ],
+    methods: {
+        confirm_delete() {
+            document.getElementById(`delete-conf-${this.id}`).classList.toggle("hidden");
+        },
+        async do_delete() {
+            await fetch(`http://localhost:8081/api/students/delete/${this.id}`, {
+                method: "delete"
+            });
+            window.location.reload();
+        }
+    }
 }
 </script>
