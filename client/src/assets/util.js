@@ -4,6 +4,9 @@
  * @returns {String} The date formatted as mm/dd/yyyy
  */
 export const format_date = (msec) => {
+    if (msec === undefined) {
+        return "";
+    }
     let temp_date = new Date(msec);
     return `${temp_date.getMonth()+1}/${temp_date.getDate()}/${temp_date.getFullYear()}`;
 }
@@ -14,6 +17,9 @@ export const format_date = (msec) => {
  * @returns {String} The time formatted as HH:MM
  */
 export const format_time = (msec) => {
+    if (msec === undefined) {
+        return "";
+    }
     let temp_date = new Date(msec);
     return `${temp_date.getHours().toString().padStart(2, "0")}:${temp_date.getMinutes().toString().padStart(2, "0")}`;
 }

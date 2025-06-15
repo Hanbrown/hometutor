@@ -97,6 +97,9 @@ router.post("/update", async (req, res) => {
     }
 });
 
+/**
+ * Delete this student and all their classes. DANGEROUS!!
+ */
 router.delete("/:id", (req, res) => {
     console.log(req.params.id);
     res.json({error: false, msg: "Deleted a student"});

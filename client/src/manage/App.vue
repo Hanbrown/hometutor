@@ -3,6 +3,7 @@ import AuthMenu from "../components/AuthMenu.vue";
 import StudentMenu from "../components/StudentMenu.vue";
 import Session from "../components/Session.vue";
 import NameMenu from "../components/NameMenu.vue";
+import { format_date } from "../assets/util";
 
 const add_session = async () => {
     const res = await fetch(`http://localhost:8081/api/sessions/add`, {
@@ -20,7 +21,6 @@ const add_session = async () => {
         }),
     });
     const res_json = await res.json();
-    console.log(res_json);
     window.location.reload();
 }
 </script>
@@ -37,14 +37,14 @@ const add_session = async () => {
                 <auth-menu></auth-menu>
             </header>
             <div class="session-controls">
-                <button class="btn btn-invoice" ><font-awesome-icon icon="print" /></button>
+                <button class="btn btn-invoice" ><font-awesome-icon icon="print" />&nbsp;Invoice</button>
                 <button class="btn btn-add-class" @click="add_session" >New Class</button>
                 <span class="date-range">
-                    <input type="text" id="date-start">
+                    <input type="text" id="date-start" :value="format_date(Dates.start)">
                     &ndash;
-                    <input type="text" id="date-end">
-                    <button class="btn btn-dates">Filter</button>
-                    <button class="btn btn-dates">Reset</button>
+                    <input type="text" id="date-end" :value="format_date(Dates.end)">
+                    <button class="btn btn-dates" @click="filterDates">Filter</button>
+                    <button class="btn btn-dates" @click="resetDateFilter">Reset</button>
                 </span>
             </div>
             <div id="session-table">
@@ -100,8 +100,9 @@ export default {
         NameMenu,
     },
     async mounted() {
-        this.getSessions(),
-        this.getStudents()
+        await this.getSessions(),
+        await this.getStudents(),
+        this.createDateFilter()
     },
     methods: {
         // TODO: Eventually send the cookie here
@@ -116,6 +117,34 @@ export default {
             const res_json = await res.json();
             this.AllStudents = res_json.data;
             this.CurrentStudent = res_json.data.filter(el => el.id_short === Number(localStorage.getItem("student")))[0];
+        },
+        createDateFilter() {
+            const start = this.Sessions[this.Sessions.length - 1].in_time;
+            const end = this.Sessions[0].in_time;
+            this.Dates = { start: start, end: end };
+        },
+        /**
+         * Filter the "Filtered" list so that it only shows classes in the specified date range (inclusive)
+         */
+        filterDates() {
+            const start = new Date(document.getElementById("date-start").value);
+            let end = new Date(document.getElementById("date-end").value);
+
+            // End defaults to 00:00, which is a problem for classes on the end date.
+            end.setHours(23);
+            end.setMinutes(59);
+
+            this.Dates.start = start;
+            this.Dates.end = end;
+
+            this.Filtered = this.Filtered.filter((el) => ((new Date(el.in_time)) >= start && (new Date(el.in_time)) <= end));
+        },
+        /**
+         * Show all classes and reset the date fields
+         */
+        resetDateFilter() {
+            this.createDateFilter();
+            this.viewAllSessions();
         },
         viewAllSessions() {
             this.Filtered = this.Sessions;
@@ -139,7 +168,6 @@ export default {
             });
         },
         updateFiltered(key) {
-            console.log(key);
             this.Filtered = this.Filtered.map((el) => {
                 if (el.number === key) {
                     el.selected = !el.selected;
@@ -154,6 +182,7 @@ export default {
             Filtered: [],
             AllStudents: [],
             CurrentStudent: {},
+            Dates: { start: undefined, end: undefined },
         }
     }
 };

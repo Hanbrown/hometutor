@@ -59,7 +59,6 @@ export default {
         async getStudents() {
             const res = await fetch("http://localhost:8081/api/students/read");
             const res_json = await res.json();
-            console.log(res_json);
             this.Students = res_json.data;
         }
     },

@@ -18,8 +18,8 @@
 export default {
     name: "NameMenu",
     props: {
-        fname: {required: true, default: "Joost", type: String},
-        lname: {required: true, default: "Doe", type: String},
+        fname: {required: true, default: "", type: String},
+        lname: {required: true, default: "", type: String},
         active: {required: true, default: true, type: Boolean},
     },
     methods: {
