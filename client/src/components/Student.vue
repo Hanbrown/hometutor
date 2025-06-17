@@ -45,7 +45,7 @@ export default {
             document.getElementById(`delete-conf-${this.id}`).classList.toggle("hidden");
         },
         async do_delete() {
-            await fetch(`http://localhost:8081/api/students/delete/${this.id}`, {
+            await fetch(`/api/students/delete/${this.id}`, {
                 method: "delete"
             });
             window.location.reload();

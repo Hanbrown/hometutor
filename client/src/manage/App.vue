@@ -89,7 +89,7 @@ export default {
     methods: {
         // TODO: Eventually send the cookie here
         async add_session() {
-            const res = await fetch(`http://localhost:8081/api/sessions/add`, {
+            const res = await fetch(`/api/sessions/add`, {
                 method: "post",
                 headers: {
                     "Accept": "application/json",
@@ -107,19 +107,19 @@ export default {
             window.location.reload();
         },
         async getSessions() {
-            const res = await fetch(`http://localhost:8081/api/sessions/read/${localStorage.getItem("student")}`);
+            const res = await fetch(`/api/sessions/read/${localStorage.getItem("student")}`);
             const res_json = await res.json();
             this.Sessions = res_json.data;
             this.Filtered = res_json.data;
         },
         async getStudents() {
-            const res = await fetch(`http://localhost:8081/api/students/read`);
+            const res = await fetch(`/api/students/read`);
             const res_json = await res.json();
             this.AllStudents = res_json.data;
             this.CurrentStudent = res_json.data.filter(el => el.id_short === Number(localStorage.getItem("student")))[0];
         },
         async get_invoice() {
-            const res = await fetch("http://localhost:8081/api/sessions/invoice", {
+            const res = await fetch("/api/sessions/invoice", {
                 method: "post",
                 headers: {
                     "Accept": "application/json",

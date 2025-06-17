@@ -23,7 +23,7 @@ const save_new_student = async () => {
     const lname = document.getElementById("new_student_lname").value;
     const active = document.getElementById("new_student_active").checked;
     try {
-        const res = await fetch("http://localhost:8081/api/students/add", {
+        const res = await fetch("/api/students/add", {
             method: "post",
             headers: {
                 "Accept": "application/json",

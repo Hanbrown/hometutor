@@ -84,7 +84,7 @@ export default {
             end.setMonth(date.getMonth());
             end.setFullYear(date.getFullYear());
 
-            const res = await fetch(`http://localhost:8081/api/sessions/update`, {
+            const res = await fetch(`/api/sessions/update`, {
                 method: "post",
                 headers: {
                     "Accept": "application/json",
@@ -137,7 +137,7 @@ export default {
          * Delete a session
          */
         async deleteSession() {
-            const res = await fetch(`http://localhost:8081/api/sessions/delete`, {
+            const res = await fetch(`/api/sessions/delete`, {
                 method: "post",
                 headers: {
                     "Accept": "application/json",

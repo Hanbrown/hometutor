@@ -28,7 +28,7 @@ export default {
             const _lname = document.getElementById("lname").value;
             const _active = document.getElementById("active").checked;
 
-            const response = await fetch("http://localhost:8081/api/students/update", {
+            const response = await fetch("/api/students/update", {
                 method: "post",
                 headers: {
                     "Accept": "application/json",
