@@ -45,10 +45,16 @@ export default {
             document.getElementById(`delete-conf-${this.id}`).classList.toggle("hidden");
         },
         async do_delete() {
-            await fetch(`/api/students/delete/${this.id}`, {
+            const res = await fetch(`/api/students/delete/${this.id}`, {
                 method: "delete"
             });
-            window.location.reload();
+            const res_json = await res.json();
+            if (!res_json.error) {
+                window.location.reload();
+            }
+            else {
+                console.error(res_json.msg);
+            }
         }
     }
 }

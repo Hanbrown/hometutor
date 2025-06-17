@@ -51,7 +51,7 @@ import { format_date } from "../assets/util";
                     <span class="table-text time-table">Out</span>
                     <span class="table-text rate-table">Rate</span>
                     <span class="table-text charge-table">Charge</span>
-                    <span class="table-text btn-table"><add-student></add-student></span>
+                    <span class="table-text btn-table"></span>
                 </div>
                 <div class="row-container">
                     <session v-for="(sesh) in Filtered"
@@ -82,11 +82,18 @@ export default {
         NameMenu,
     },
     async mounted() {
+        this.setCurrent(),
         await this.getSessions(),
         await this.getStudents(),
         this.createDateFilter()
     },
     methods: {
+        setCurrent() {
+            const arr = window.location.toString().split("/manage/");
+            if (arr.length === 2) {
+                localStorage.setItem("student", Number(arr[1]));
+            }
+        },
         // TODO: Eventually send the cookie here
         async add_session() {
             const res = await fetch(`/api/sessions/add`, {
@@ -104,19 +111,45 @@ export default {
                 }),
             });
             const res_json = await res.json();
-            window.location.reload();
+            console.log(res_json.data);
+            if (!res_json.error) {
+                // window.location.reload();
+                let new_obj = res_json.data;
+                new_obj["selected"] = false;
+                this.Sessions = [
+                    new_obj,
+                    ...this.Sessions
+                ];
+                this.Filtered = [
+                    new_obj,
+                    ...this.Filtered
+                ];
+            }
+            else {
+                window.alert(res_json.msg);
+            }
         },
         async getSessions() {
             const res = await fetch(`/api/sessions/read/${localStorage.getItem("student")}`);
             const res_json = await res.json();
-            this.Sessions = res_json.data;
-            this.Filtered = res_json.data;
+            if (!res_json.error) {
+                this.Sessions = res_json.data;
+                this.Filtered = res_json.data;
+            }
+            else {
+                console.log(res_json.msg);
+            }
         },
         async getStudents() {
             const res = await fetch(`/api/students/read`);
             const res_json = await res.json();
-            this.AllStudents = res_json.data;
-            this.CurrentStudent = res_json.data.filter(el => el.id_short === Number(localStorage.getItem("student")))[0];
+            if (!res_json.error) {
+                this.AllStudents = res_json.data;
+                this.CurrentStudent = res_json.data.filter(el => el.id_short === Number(localStorage.getItem("student")))[0];
+            }
+            else {
+                console.log(res_json.msg);
+            }
         },
         async get_invoice() {
             const res = await fetch("/api/sessions/invoice", {
@@ -130,9 +163,18 @@ export default {
                     sessions: this.Filtered.filter((el) => el.selected).sort((a, b) => a.number > b.number),
                 }),
             });
-            const blob = await res.blob();
-            const file = window.URL.createObjectURL(blob);
-            window.open(file);
+            if (res.status === 200) {
+                const blob = await res.blob();
+                const file_url = window.URL.createObjectURL(blob);
+                let link = document.createElement("a");
+                link.href = file_url;
+                link.download = `${this.CurrentStudent.fname}_${this.CurrentStudent.lname}.pdf`;
+                link.click();
+            }
+            else {
+                const res_json = await res.json();
+                window.alert(res_json.msg);
+            }
         },
         createDateFilter() {
             const start = this.Sessions[this.Sessions.length - 1].in_time;

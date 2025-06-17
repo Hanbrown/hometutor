@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import bodyParser from "body-parser";
 
 import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import dotenv from "dotenv" // For .env file
 dotenv.config();
@@ -11,7 +12,9 @@ dotenv.config();
 import sessions from "./api/sessions.js";
 import students from "./api/students.js";
 import users from "./api/users.js";
+import logger from './logger.js';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(bodyParser.json());
 
@@ -22,11 +25,12 @@ mongoose
     .connect(db)
     // If connection is successful
     .then(() => {
-        console.log("Mongo Connected");
+        logger.info("Mongo Connected");
     })
     // If error occurs during connection
     .catch(err => {
-        console.log(`Error: ${err}`);
+        logger.error("Mongo Error");
+        logger.error(`Error: ${err}`);
     });
 
 /** Use routes (declared earlier in this file) **/
@@ -38,14 +42,14 @@ app.use("/api/users", users);
 app.use(express.static("build"));
 
 app.get("/", (req, res) => {
-    res.sendFile(resolve("build", "index.html"));
+    res.sendFile(resolve(__dirname, "build", "index.html"));
 });
 
 app.get("/manage/:student", (req, res) => {
-    res.sendFile(resolve("build", "manage.html"));
+    res.sendFile(resolve(__dirname, "build", "manage.html"));
 });
 
 
 /** Start server **/
 const port = process.env.PORT || 8081;
-app.listen(port, () => console.log(`Server running on port number ${port}`));
+app.listen(port, () => logger.info(`Server running on port ${port}`));

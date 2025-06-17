@@ -3,4 +3,6 @@
 3. Change hard-coded 65 to be the 65 stored in MongoDB
 4. Make students' names clickable
 5. Put pointer cursor for clickable elements on hover
-5. (low) Make PDF save to user's disc as "name.pdf"
+6. Add and remove sessions without page reload
+7. Add and remove students without page reload
+8. Move check menu so you can see the checkmarks

@@ -5,6 +5,7 @@
 
 import express from "express";
 const router = express.Router();
+import logger from '../logger.js';
 
 import Session from "../schemas/Session.js";
 import Student from "../schemas/Student.js";
@@ -16,6 +17,7 @@ import { export_pdf } from "../pdf/pdf_export.js";
 
 router.get("/read/:student/:id", async (req, res) => {
     try {
+        logger.info("Reading one session for a student");
         // Does this find the first match, or does it throw an error if there are more than one match?
         const data = await Session.where({ number: req.params.id, student: req.params.student }).findOne();
         res.json({
@@ -32,13 +34,14 @@ router.get("/read/:student/:id", async (req, res) => {
         });
     }
     catch (err) {
-        console.log("Error getting one session");
+        logger.error("Error getting one session");
         res.json({error: true, msg: "Error!"});
     }
 });
 
 router.get("/read/:student", async (req, res) => {
     try {
+        logger.info("Reading all sessions for a student");
         const data = await Session.where({ student: req.params.student }).find().sort({ number: -1 });
         const data_res = data.map(datum => {
             return {
@@ -54,13 +57,14 @@ router.get("/read/:student", async (req, res) => {
         res.json({ error: false, msg: "Read all sessions", data: data_res});
     }
     catch (err) {
-        console.log("Error getting all sessions");
+        logger.error("Error getting all sessions");
         res.json({error: true, msg: "Error!"});
     }
 });
 
 router.post("/add", async (req, res) => {
     try {
+        logger.info("Adding a session");
         const { student, in_time, out_time, rate, paid } = req.body;
 
         let number;
@@ -97,30 +101,33 @@ router.post("/add", async (req, res) => {
         });
     }
     catch(err) {
-        console.error(err);
-        console.log("Adding a session failed");
+        logger.error(err);
+        logger.error("Adding a session failed");
         res.json({error: true, msg: "Error!"});
     }
 });
 
 router.post("/update", async (req, res) => {
     try {
+        logger.info("Updating a session");
         const updated = req.body;
         const doc = await Session.where({ student: updated.student, number: updated.number }).findOne()
         const response = await doc.overwrite(updated).save();
-        console.log(response);
+        logger.debug(response);
         res.json({error: false, msg: "Updated a session"});
     }
     catch (err) {
-        console.error(err);
+        logger.error(err);
+        logger.error("Error updating a session entry");
         res.json({err: true, msg: "Couldn't update the session"});
     }
 });
 
 router.post("/delete", async (req, res) => {
     try {
+        logger.info("Deleting a session");
         const { number, student } = req.body;
-        console.log(req.body);
+        logger.debug(JSON.stringify(req.body));
         const response = await Session.where({ number: number, student: student }).findOneAndDelete()
         if (response === null) {
             throw new Error("Document not found");
@@ -128,7 +135,8 @@ router.post("/delete", async (req, res) => {
         res.json({error: false, msg: "Deleted a session"});
     }
     catch (err) {
-        console.error(err);
+        logger.error(err);
+        logger.error("Error deleting a session");
         res.json({error: true, msg: "Couldn't delete the session"});
     }
 });
@@ -136,17 +144,20 @@ router.post("/delete", async (req, res) => {
 router.post("/invoice", async (req, res) => {
     const { student, sessions } = req.body;
     if (sessions.length < 1) {
-        res.status(400).send("No sessions selected for invoice");
+        res.status(400).json({error: true, msg: "No sessions selected for invoice"});
         return;
     }
 
     try {
+        logger.info("Creating Invoice");
         await export_pdf(student, sessions);
         res.download(path.resolve(__dirname, "pdf", "invoice.pdf"));
     }
     catch (err) {
-        console.error(err);
-        res.status(400).send("Error processing request");
+        logger.error(err);
+        logger.info(JSON.stringify(req.body));
+        logger.error("Error creating an invoice");
+        res.status(400).json({error: true, msg: "Error processing request"});
     }
 });
 

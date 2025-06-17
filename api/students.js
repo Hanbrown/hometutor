@@ -5,12 +5,14 @@
 
 import express from "express";
 const router = express.Router();
+import logger from '../logger.js';
 
 import Student from "../schemas/Student.js";
 import Session from "../schemas/Session.js";
 
 router.get("/read/:id", async (req, res) => {
     try {
+        logger.info("Reading a student");
         const data = await Student.where({ id_short: req.params.id }).findOne();
         res.json({
             error: false, 
@@ -24,13 +26,15 @@ router.get("/read/:id", async (req, res) => {
         });
     }
     catch (err) {
-        console.log("Error getting all students");
+        logger.error("Error getting all students");
+        logger.error(err);
         res.json({error: true, msg: "Error!"});
     }
 });
 
 router.get("/read", async (req, res) => {
     try {
+        logger.info("Reading all students");
         const data = await Student.find().sort({ lname: 1 });
         const data_res = data.map(datum => {
             return {
@@ -43,7 +47,7 @@ router.get("/read", async (req, res) => {
         res.json({ error: false, msg: "Read all students", data: data_res});
     }
     catch (err) {
-        console.log("Error getting all students");
+        logger.error(`Error in /read: ${req.originalUrl}`);
         res.json({error: true, msg: "Error!"});
     }
 });
@@ -63,6 +67,7 @@ router.post("/add", async (req, res) => {
 
         const response = await newStudent.save();
 
+        logger.info("Added a student");
         res.json({
             error: false, 
             msg: "Added a student", 
@@ -75,7 +80,7 @@ router.post("/add", async (req, res) => {
         });
     }
     catch {
-        console.log("Adding a student failed");
+        logger.error(`Error in students/add: ${req.body}`);
         res.json({error: true, msg: "Error!"});
     }
 });
@@ -88,11 +93,12 @@ router.post("/update", async (req, res) => {
             throw new Error("No student found");
         }
         const response = await doc.overwrite(updated).save();
-        console.log(response);
+        logger.debug(response);
+        logger.info("Updated a student");
         res.json({error: false, msg: "Updated a student"});
     }
     catch (err) {
-        console.error(err);
+        logger.error(`Error in students/update: ${req.body}`);
         res.json({error: true, msg: "Couldn't update the student"});
     }
 });
@@ -111,11 +117,12 @@ router.delete("/delete/:id", async (req, res) => {
         if (response === null) {
             throw new Error("Document not found");
         }
-        console.log("Deleted");
+        logger.info("Deleted a student and their classes");
         res.json({error: false, msg: "Deleted a student and their classes"});
     }
     catch (err) {
-        console.error(err);
+        logger.error(`Error in students/read: ${req.params}`);
+        logger.error(err);
         res.json({error: true, msg: "Couldn't delete"});
     }
 });

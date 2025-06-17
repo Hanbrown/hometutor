@@ -149,7 +149,12 @@ export default {
                 }),
             });
             const res_json = await res.json();
-            window.location.reload();
+            if (!res_json.error) {
+                window.location.reload();
+            }
+            else {
+                console.error(res_json.msg);
+            }
         }
     }
 }

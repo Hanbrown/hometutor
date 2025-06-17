@@ -4,10 +4,6 @@ import RateMenu from "../components/RateMenu.vue";
 import AddStudent from "../components/AddStudent.vue";
 import AuthMenu from "../components/AuthMenu.vue";
 import NewStudent from "../components/NewStudent.vue";
-
-const toggle_new_student = () => {
-    document.getElementById("new-student-menu").classList.toggle("hidden");
-}
 </script>
 
 <template>
@@ -59,7 +55,15 @@ export default {
         async getStudents() {
             const res = await fetch("/api/students/read");
             const res_json = await res.json();
-            this.Students = res_json.data;
+            if (!res_json.error) {
+                this.Students = res_json.data;
+            }
+            else {
+                console.log("Error");
+            }
+        },
+        toggle_new_student() {
+            document.getElementById("new-student-menu").classList.toggle("hidden");
         }
     },
     data() {

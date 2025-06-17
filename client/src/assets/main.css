@@ -349,9 +349,11 @@ header summary {
 .btn-add-class {
     margin-left: 15px;
     background-color: #179732;
+    color: #FFF;
 }
 .btn-add-class:hover {
     background-color: #1b8532;
+    color: #FFF;
 }
 .btn-add-class:active {
     background-color: #196e2c;
