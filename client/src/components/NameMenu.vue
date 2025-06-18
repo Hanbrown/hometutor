@@ -1,4 +1,6 @@
 <script setup>
+import IconButton from './IconButton.vue';
+
 </script>
 
 <template>
@@ -10,7 +12,7 @@
         <label for="active">Active</label>
         <span v-if="(active)" class="table-text check-table"><input type="checkbox" id="active" checked /></span>
         <span v-else class="table-text check-table"><input type="checkbox" id="active" unchecked /></span>
-        <button class="btn btn-save" @click="saveClick()"><font-awesome-icon icon="save" /></button>
+        <icon-button classes="btn btn-save" @clicked="saveClick" base="save"></icon-button>
     </div>
 </template>
 
@@ -21,6 +23,9 @@ export default {
         fname: {required: true, default: "", type: String},
         lname: {required: true, default: "", type: String},
         active: {required: true, default: true, type: Boolean},
+    },
+    components: {
+        IconButton
     },
     methods: {
         saveClick: async () => {

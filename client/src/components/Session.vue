@@ -2,6 +2,7 @@
 import ManageBtn from './ManageBtn.vue';
 import DeleteStudent from './DeleteStudent.vue';
 import { format_date, format_time, get_charge } from "../assets/util";
+import IconButton from './IconButton.vue';
 
 const emit = defineEmits(["selected"]);
 
@@ -24,7 +25,9 @@ const openDetails = (class_id) => {
             <span class="table-text time-table class-in">{{ format_time(time_out) }}</span>
             <span class="table-text rate-table">${{ rate }}</span>
             <span class="table-text charge-table">${{ get_charge(time_in, time_out, rate) }}</span>
-            <span class="table-text btn-table"><manage-btn @clicked="openDetails(id)" should_switch=true></manage-btn></span>
+            <span class="table-text btn-table">
+                <icon-button classes="btn btn-manage" @clicked="openDetails(id)" base="pencil" alt="caret-up"></icon-button>
+            </span>
         </div>
         <div :id="`details-${id}`" class="row-bottom hidden">
             <!-- Show either a checked or unchecked box -->
@@ -39,8 +42,8 @@ const openDetails = (class_id) => {
             <span class="table-input time-table class-in"><input type="text" :id="`${id}-outtime`" :value="`${format_time(time_out)}`"></span>
             <span class="table-input rate-table"><input type="text" :id="`${id}-rate`" :value="rate"></span>
             <span class="table-input btn-table-input">
-                <button class="btn btn-add" @click="editSession"><font-awesome-icon icon="save" /></button>&nbsp;&nbsp;
-                <delete-student @click="deleteSession"></delete-student>
+                <icon-button classes="btn btn-add" @clicked="editSession" base="save"></icon-button>&nbsp;&nbsp;
+                <icon-button classes="btn btn-del" @clicked="deleteSession" base="minus"></icon-button>
             </span>
         </div>
     </div>
@@ -58,8 +61,7 @@ export default {
         rate:           { required: true, default: 65, type: Number },
     },
     components: [
-        ManageBtn,
-        DeleteStudent
+        IconButton
     ],
     methods: {
         /**

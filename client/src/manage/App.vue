@@ -4,6 +4,7 @@ import StudentMenu from "../components/StudentMenu.vue";
 import Session from "../components/Session.vue";
 import NameMenu from "../components/NameMenu.vue";
 import { format_date } from "../assets/util";
+import IconButton from "../components/IconButton.vue";
 
 </script>
 
@@ -19,8 +20,8 @@ import { format_date } from "../assets/util";
                 <auth-menu></auth-menu>
             </header>
             <div class="session-controls">
-                <button class="btn btn-invoice" @click="get_invoice"><font-awesome-icon icon="print" />&nbsp;Invoice</button>
-                <button class="btn btn-add-class" @click="add_session" >New Class</button>
+                <icon-button classes="btn btn-invoice" @clicked="get_invoice" base="print">&nbsp;Invoice</icon-button>
+                <icon-button classes="btn btn-add-class" @clicked="add_session">&nbsp;New Class</icon-button>
                 <span class="date-range">
                     <input type="text" id="date-start" :value="format_date(Dates.start)">
                     &ndash;
@@ -80,6 +81,7 @@ export default {
         AuthMenu,
         Session,
         NameMenu,
+        IconButton
     },
     async mounted() {
         this.setCurrent(),

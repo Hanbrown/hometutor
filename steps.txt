@@ -1,8 +1,4 @@
-1. Enable logging!
-2. Implement user auth
-3. Change hard-coded 65 to be the 65 stored in MongoDB
-4. Make students' names clickable
-5. Put pointer cursor for clickable elements on hover
-6. Add and remove sessions without page reload
-7. Add and remove students without page reload
-8. Move check menu so you can see the checkmarks
+1. Implement user auth
+2. Change hard-coded 65 to be the 65 stored in MongoDB
+3. Add and remove sessions without page reload
+4. Add and remove students without page reload

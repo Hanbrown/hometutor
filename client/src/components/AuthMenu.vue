@@ -1,4 +1,6 @@
 <script setup>
+import IconButton from './IconButton.vue';
+
 const toggleMenu = () => {
     document.getElementById("signon").classList.toggle("hidden");
 }
@@ -6,10 +8,18 @@ const toggleMenu = () => {
 
 <template>
     <div id="auth-menu">
-        <button class="btn btn-profile" @click="toggleMenu"><font-awesome-icon icon="user" /></button>
+        <icon-button classes="btn btn-profile" @clicked="toggleMenu" base="user"></icon-button>
         <div id="signon" class="hidden">
             <!-- <div class="g-signin2" data-onsuccess="onSignIn"></div> -->
             <a>Logout</a>
         </div>
     </div>
 </template>
+
+<script>
+export default {
+    components: {
+        IconButton
+    }
+};
+</script>

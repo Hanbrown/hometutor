@@ -1,6 +1,5 @@
 <script setup>
-import DeleteStudent from "./DeleteStudent.vue";
-import ManageBtn from "./ManageBtn.vue";
+import IconButton from "./IconButton.vue";
 
 const goToStudent = (student_id) => {
     localStorage.setItem("student", student_id);
@@ -12,15 +11,19 @@ const goToStudent = (student_id) => {
     <div :id="`row-${id}`" class="student-row">
         <div class="row-top">
             <span class="student-id">{{ id }}</span>
-            <span class="student-name">{{ fname }} {{ lname }}</span>
+            <span class="student-name"><a :href="`/manage/${id}`">{{ fname }} {{ lname }}</a></span>
             <span class="student-status">{{ (active === "true")? "Active" : "Inactive" }}</span>
-            <span class="student-btn"><manage-btn @clicked="goToStudent(id)"></manage-btn></span>
-            <span class="student-del"><delete-student @clicked="confirm_delete"></delete-student></span>
+            <span class="student-btn">
+                <icon-button classes="btn btn-manage" base="pencil" @clicked="goToStudent(id)"></icon-button>
+            </span>
+            <span class="student-del">
+                <icon-button classes="btn btn-del" base="minus" alt="caret-up" @clicked="confirm_delete"></icon-button>
+            </span>
         </div>
         <div :id="`delete-conf-${id}`" class="row-bottom row-del hidden">
             <h5>Delete entry for {{ fname }} {{ lname }}?</h5>
             <p>You cannot undo this action, <strong>and all of {{ fname }}'s classes will also be deleted!</strong></p>
-            <delete-student @clicked="do_delete" :long="true"></delete-student>
+            <icon-button classes="btn btn-del" base="minus" @clicked="do_delete"> Delete</icon-button>
         </div>
     </div>
     
@@ -37,8 +40,7 @@ export default {
         active:         { required: true, default: true, type: Boolean }
     },
     components: [
-        DeleteStudent,
-        ManageBtn
+        IconButton
     ],
     methods: {
         confirm_delete() {

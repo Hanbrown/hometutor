@@ -67,6 +67,10 @@ header summary {
     margin: 10px;
 }
 
+summary:hover {
+    cursor: pointer;
+}
+
 .name-list {
     position:absolute;
     z-index: 3;
@@ -100,6 +104,7 @@ header summary {
 }
 .name-list-li a:hover {
     background-color: #ffe4c4;
+    cursor: pointer;
 }
 
 #auth-menu {
@@ -272,6 +277,11 @@ header summary {
     flex: 5%;
 }
 
+.student-name a {
+    color: black;
+    text-decoration: none;
+}
+
 .btn {
     border-radius: 5px;
     border: solid #222 2px;
@@ -307,7 +317,7 @@ header summary {
 
 .btn-add {
     background-color: #4aca66;
-    width: 35px;
+    min-width: 35px;
 }
 .btn-add:hover {
     background-color: #1b8532;
@@ -426,7 +436,7 @@ header summary {
 #session-table .check-list {
     position:absolute;
     top: 170px;
-    left: 0;
+    left: 4rem;
     border: solid #222 2px;
     width: 8rem;
     background-color: #ddd;

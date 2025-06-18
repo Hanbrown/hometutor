@@ -1,9 +1,9 @@
 <script setup>
 import Student from "../components/Student.vue";
 import RateMenu from "../components/RateMenu.vue";
-import AddStudent from "../components/AddStudent.vue";
 import AuthMenu from "../components/AuthMenu.vue";
 import NewStudent from "../components/NewStudent.vue";
+import IconButton from "../components/IconButton.vue";
 </script>
 
 <template>
@@ -20,7 +20,9 @@ import NewStudent from "../components/NewStudent.vue";
                     <span class="table-text student-name-header">Student</span>
                     <span class="table-text student-status">All</span>
                     <span class="table-text student-del-header"></span>
-                    <span class="table-text student-btn-header"><add-student @click="toggle_new_student"></add-student></span>
+                    <span class="table-text student-btn-header">
+                        <icon-button classes="btn btn-add" base="plus" alt="caret-up" @clicked="toggle_new_student"></icon-button>
+                    </span>
                 </div>
                 <div class="row-container">
                         <new-student id="new-student-menu" class="hidden" @cancelled="toggle_new_student"></new-student>
@@ -44,8 +46,8 @@ export default {
     components: {
         Student,
         RateMenu,
-        AddStudent,
         NewStudent,
+        IconButton
     },
     async mounted() {
         this.getStudents()
