@@ -38,7 +38,7 @@ const format_data = (data, headers) => {
     }
 
     // Pad with blanks
-    for (let i = 0; i < MAX_ROWS - data.length; i++) {
+    for (let i = 0; i < MAX_ROWS - data.length - 1; i++) {
         rows.push(["", "", "", "", "", ""]);
     }
 

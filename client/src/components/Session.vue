@@ -53,11 +53,11 @@ const openDetails = (class_id) => {
 export default {
     name: "Session",
     props: {
-        selected:       { required: false, default: "false", type: String },
-        paid:           { required: false, default: "false", type: String },
+        selected:       { required: false, default: false, type: Boolean },
+        paid:           { required: false, default: false, type: Boolean },
         id:             { required: true, default: 9999, unique: true, type: Number },
-        time_in:        { required: false, default: Date.now()-(1000*60*60), type: Date },
-        time_out:       { required: false, default: Date.now(), type: Date },
+        time_in:        { required: false, default: Date.now()-(1000*60*60), type: String },
+        time_out:       { required: false, default: Date.now(), type: String },
         rate:           { required: true, default: 65, type: Number },
     },
     components: [

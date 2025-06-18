@@ -5,7 +5,7 @@ const emit = defineEmits(["clicked"]);
 </script>
 
 <template>
-    <button :class="this.classes" @click="switchIcon(); emit('clicked')">
+    <button :class="classes" @click="switchIcon(); emit('clicked')">
         <font-awesome-icon :icon="['fas', the_icon]" />
         <slot />
     </button>
@@ -24,10 +24,10 @@ export default {
     },
     methods: {
         switchIcon() {
-            if (this.alt !== "" && this.the_icon === this.base) {
+            if (this.alt.length > 0 && this.the_icon === this.base) {
                 this.the_icon = this.alt;
             }
-            else if (this.alt !== "") {
+            else if (this.alt.length > 0) {
                 this.the_icon = this.base;
             }
 

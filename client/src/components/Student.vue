@@ -37,7 +37,7 @@ export default {
         id:             { required: true, default: 9999, type: Number },
         fname:          { required: false, default: "Joost", type: String },
         lname:          { required: false, default: "Doe", type: String },
-        active:         { required: true, default: true, type: Boolean }
+        active:         { required: true, default: "true", type: String }
     },
     components: [
         IconButton

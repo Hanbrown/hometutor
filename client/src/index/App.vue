@@ -31,7 +31,7 @@ import IconButton from "../components/IconButton.vue";
                             :id="student.id_short"
                             :fname="student.fname" 
                             :lname="student.lname" 
-                            :active="student.active ? `true` : `false`"
+                            :active="student.active.toString()"
                         ></student>
                 </div>
             </div>

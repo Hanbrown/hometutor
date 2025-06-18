@@ -172,6 +172,7 @@ export default {
                 link.href = file_url;
                 link.download = `${this.CurrentStudent.fname}_${this.CurrentStudent.lname}.pdf`;
                 link.click();
+                window.URL.revokeObjectURL(file_url);
             }
             else {
                 const res_json = await res.json();
