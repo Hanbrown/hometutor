@@ -1,8 +1,8 @@
 Implement user auth
-Change hard-coded 65 to be the 65 stored in MongoDB
 Add and remove sessions without page reload
 Add and remove students without page reload
 Make session ids count up from earliest to most recent without skipping
 Allow only month and day for date filter
 Allow filtering of students by status
 Fix accessibility issues (contrast, text field labels, button labels)
+Encipher database entries

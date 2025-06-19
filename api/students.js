@@ -10,10 +10,10 @@ import logger from '../logger.js';
 import Student from "../schemas/Student.js";
 import Session from "../schemas/Session.js";
 
-router.get("/read/:id", async (req, res) => {
+router.get("/read/:user/:id", async (req, res) => {
     try {
         logger.info("Reading a student");
-        const data = await Student.where({ id_short: req.params.id }).findOne();
+        const data = await Student.where({ id_short: req.params.id, user: req.params.user }).findOne();
         res.json({
             error: false, 
             msg: "Read one student", 
@@ -32,10 +32,10 @@ router.get("/read/:id", async (req, res) => {
     }
 });
 
-router.get("/read", async (req, res) => {
+router.get("/read/:user", async (req, res) => {
     try {
         logger.info("Reading all students");
-        const data = await Student.find().sort({ lname: 1 });
+        const data = await Student.where({ user: req.params.user }).find().sort({ lname: 1 });
         const data_res = data.map(datum => {
             return {
                 id_short: datum.id_short,
@@ -54,7 +54,7 @@ router.get("/read", async (req, res) => {
 
 router.post("/add", async (req, res) => {
     try {
-        const { fname, lname, active } = req.body;
+        const { fname, lname, active, user } = req.body;
 
         let id_short = Math.floor(Math.random() * 1000);
 
@@ -63,6 +63,7 @@ router.post("/add", async (req, res) => {
             fname,
             lname,
             active,
+            user
         });
 
         const response = await newStudent.save();
@@ -88,7 +89,7 @@ router.post("/add", async (req, res) => {
 router.post("/update", async (req, res) => {
     try {
         const updated = req.body;
-        const doc = await Student.where({ id_short: updated.id_short }).findOne();
+        const doc = await Student.where({ id_short: updated.id_short, user: updated.user }).findOne();
         if (doc === null) {
             throw new Error("No student found");
         }
@@ -106,10 +107,10 @@ router.post("/update", async (req, res) => {
 /**
  * Delete this student and all their classes. DANGEROUS!!
  */
-router.delete("/delete/:id", async (req, res) => {
-    const id = req.params.id;
+router.delete("/delete", async (req, res) => {
     try {
-        let response = await Student.where({ id_short: id }).findOneAndDelete();
+        const { id, user } = req.body;
+        let response = await Student.where({ id_short: id, user: user }).findOneAndDelete();
         if (response === null) {
             throw new Error("Document not found");
         }

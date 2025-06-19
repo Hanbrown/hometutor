@@ -3,7 +3,7 @@ import AuthMenu from "../components/AuthMenu.vue";
 import StudentMenu from "../components/StudentMenu.vue";
 import Session from "../components/Session.vue";
 import NameMenu from "../components/NameMenu.vue";
-import { format_date } from "../assets/util";
+import { format_date, getCookie } from "../assets/util";
 import IconButton from "../components/IconButton.vue";
 
 </script>
@@ -17,7 +17,7 @@ import IconButton from "../components/IconButton.vue";
                     ><a class="nav-back btn" href="/landing"><font-awesome-icon icon="caret-left" />&nbsp;Back</a></span
                 >
                 <student-menu :current="CurrentStudent" :students="AllStudents"></student-menu>
-                <auth-menu></auth-menu>
+                <auth-menu>{{ User.displayName }}</auth-menu>
             </header>
             <div class="session-controls">
                 <icon-button classes="btn btn-invoice" @clicked="get_invoice" base="print">&nbsp;Invoice</icon-button>
@@ -56,16 +56,20 @@ import IconButton from "../components/IconButton.vue";
                 </div>
                 <div class="row-container">
                     <session v-for="(sesh) in Filtered"
-                            :key="sesh.number"
-                            :selected="sesh.selected"
-                            :paid="sesh.paid"
-                            :id="sesh.number"
-                            :time_in="sesh.in_time" 
-                            :time_out="sesh.out_time" 
-                            :rate="sesh.rate"
-                            @selected="updateFiltered(sesh.number)"
+                        :key="sesh.number"
+                        :selected="sesh.selected"
+                        :paid="sesh.paid"
+                        :id="sesh.number"
+                        :time_in="sesh.in_time" 
+                        :time_out="sesh.out_time" 
+                        :rate="sesh.rate"
+                        @selected="updateFiltered(sesh.number)"
                     >
                     </session>
+                    <div :class="`session-row`" v-if="Filtered.length === 0">
+                        <h5 class="table-text rate-table">No Classes, add one!</h5>
+                    </div>
+
                 </div>
             </div>
             <name-menu :fname="CurrentStudent.fname" :lname="CurrentStudent.lname" :active="CurrentStudent.active"></name-menu>
@@ -84,12 +88,20 @@ export default {
         IconButton
     },
     async mounted() {
+        this.populateUser(),
         this.setCurrent(),
         await this.getSessions(),
         await this.getStudents(),
         this.createDateFilter()
     },
     methods: {
+        populateUser() {
+            this.User = {
+                user: getCookie("user"),
+                displayName: decodeURIComponent(getCookie("displayName")),
+                rate: getCookie("rate"),
+            }
+        },
         setCurrent() {
             const arr = window.location.toString().split("/manage/");
             if (arr.length === 2) {
@@ -132,6 +144,7 @@ export default {
             }
         },
         async getSessions() {
+            const user = getCookie("user");
             const res = await fetch(`/api/sessions/read/${localStorage.getItem("student")}`);
             const res_json = await res.json();
             if (!res_json.error) {
@@ -143,7 +156,8 @@ export default {
             }
         },
         async getStudents() {
-            const res = await fetch(`/api/students/read`);
+            const user = getCookie("user");
+            const res = await fetch(`/api/students/read/${user}`);
             const res_json = await res.json();
             if (!res_json.error) {
                 this.AllStudents = res_json.data;
@@ -244,6 +258,7 @@ export default {
             AllStudents: [],
             CurrentStudent: {},
             Dates: { start: undefined, end: undefined },
+            User: {}
         }
     }
 };

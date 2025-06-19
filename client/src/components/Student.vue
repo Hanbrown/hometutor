@@ -1,6 +1,8 @@
 <script setup>
 import IconButton from "./IconButton.vue";
 
+import { getCookie } from "../assets/util";
+
 const goToStudent = (student_id) => {
     localStorage.setItem("student", student_id);
     window.location.href = `/manage/${student_id}`;
@@ -47,8 +49,17 @@ export default {
             document.getElementById(`delete-conf-${this.id}`).classList.toggle("hidden");
         },
         async do_delete() {
-            const res = await fetch(`/api/students/delete/${this.id}`, {
-                method: "delete"
+            const user = getCookie("user");
+            const res = await fetch(`/api/students/delete`, {
+                method: "delete",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    user: user,
+                    id: this.id
+                })
             });
             const res_json = await res.json();
             if (!res_json.error) {

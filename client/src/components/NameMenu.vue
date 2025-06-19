@@ -1,4 +1,5 @@
 <script setup>
+import { getCookie } from '../assets/util';
 import IconButton from './IconButton.vue';
 
 </script>
@@ -32,6 +33,7 @@ export default {
             const _fname = document.getElementById("fname").value;
             const _lname = document.getElementById("lname").value;
             const _active = document.getElementById("active").checked;
+            const _user = getCookie("user");
 
             const response = await fetch("/api/students/update", {
                 method: "post",
@@ -44,6 +46,7 @@ export default {
                     fname: _fname,
                     lname: _lname,
                     active: _active,
+                    user: _user,
                 }),
             });
             const res_json = await response.json();

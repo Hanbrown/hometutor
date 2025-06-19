@@ -1,15 +1,22 @@
 import { model, Schema } from "mongoose";
 
 const UserSchema = new Schema({
+    id: {
+        type: Number,
+        required: true
+    },
+    username: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
     rate: {
         type: Number,
-        required: true,
+        required: false,
         default: 60.00
-    },
-    date_updated: {
-        type: Date,
-        required: true,
-        default: Date.now,
     }
 });
 

@@ -311,7 +311,7 @@ summary:hover {
 
 .btn-profile {
     height: 40px;
-    width: 40px;
+    min-width: 40px;
     margin: 5px 30px 5px 0px;
 }
 
@@ -382,6 +382,11 @@ summary:hover {
     background-color: #ccc;
     width: 200px;
     border: solid 2px #222;
+}
+
+#signon a {
+    display: block;
+    text-align: right;
 }
 
 .add-menu {

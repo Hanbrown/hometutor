@@ -17,6 +17,7 @@ import logger from './logger.js';
 import passport from "passport";
 import session from "express-session";
 import Strategy from "passport-google-oauth20/lib/strategy.js";
+import User from "./schemas/User.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -64,9 +65,43 @@ passport.use(
         scope: ['profile', 'email'],
         failureRedirect: "/",
     }, 
-    (accessToken, refreshToken, profile, done) => {
-        // TODO: Save to mongo
-        return done(null, profile);
+    async (accessToken, refreshToken, profile, done) => {
+        logger.debug(accessToken);
+        logger.debug(refreshToken);
+        // Create user JSON object
+        const id = profile.id;
+        const username = profile.displayName;
+        const email = profile.emails[0].value;
+
+        let the_user;
+
+        // Check if user exists, create new if it doesn't
+        const doc = await User.where({ id: id }).findOne();
+        // console.log(doc);
+        if (doc === null) {
+            logger.info("No user found, creating a new one");
+            const newUser = User({id, username, email});
+            const response = await newUser.save();
+
+            the_user = {
+                id: response.id,
+                username: response.username,
+                email: response.email,
+                rate: response.rate
+            };
+        }
+        // User exists, so send it
+        else {
+            logger.info("User found");
+            the_user = {
+                id: doc.id,
+                username: doc.username,
+                email: doc.email,
+                rate: doc.rate
+            };
+        }
+
+        return done(null, the_user);
     })
 );
 
@@ -82,12 +117,19 @@ app.get("/", (req, res) => {
     if (req.isAuthenticated()) {
         logger.info("Index is authenticated");
     }
+    else {
+        res.clearCookie("user");
+        res.clearCookie("displayName");
+        res.clearCookie("connect.sid");
+    }
     res.sendFile(resolve(__dirname, "build", "index.html"));
 });
 
 app.get("/landing", (req, res) => {
     if (req.isAuthenticated()) {
         logger.debug("Logged in");
+        // console.log(req.user);
+        // res.cookie("user", req.user.id);
         res.sendFile(resolve(__dirname, "build", "landing.html"));
         return;
     }
@@ -102,6 +144,7 @@ app.get("/landing", (req, res) => {
 app.get("/manage/:student", (req, res) => {
     logger.debug("Manage route reached");
     if (req.isAuthenticated()) {
+        // console.log(req.user);
         res.sendFile(resolve(__dirname, "build", "manage.html"));
     }
     else {
@@ -113,12 +156,18 @@ app.get("/manage/:student", (req, res) => {
 app.get("/api/auth/google", passport.authenticate("google"));
 
 app.get("/api/auth/google/callback", passport.authenticate("google", {failureRedirect: "/"}), (req, res) => {
+    // console.log(req.user);
+    res.cookie("user", req.user.id);
+    res.cookie("displayName", req.user.username);
+    res.cookie("rate", req.user.rate);
     res.redirect("/landing");
 });
 
 app.get("/api/auth/logout", (req, res) => {
-    res.clearCookie("username");
-    res.clearCookie("email");
+    res.clearCookie("displayName");
+    res.clearCookie("user");
+    res.clearCookie("connect.sid");
+    res.clearCookie("rate");
     req.logout(() => {
         res.redirect("/");
     });

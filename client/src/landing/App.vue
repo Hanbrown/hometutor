@@ -4,6 +4,8 @@ import RateMenu from "../components/RateMenu.vue";
 import AuthMenu from "../components/AuthMenu.vue";
 import NewStudent from "../components/NewStudent.vue";
 import IconButton from "../components/IconButton.vue";
+
+import { getCookie } from "../assets/util";
 </script>
 
 <template>
@@ -12,7 +14,7 @@ import IconButton from "../components/IconButton.vue";
             <header>
                 <span class="header-left"><a class="screen-reader-only">Skip to Content</a></span>
                 <h3>Student Management System</h3>
-                <auth-menu></auth-menu>
+                <auth-menu>{{ User.displayName }}</auth-menu>
             </header>
             <div id="student-table">
                 <div class="table-header">
@@ -33,9 +35,12 @@ import IconButton from "../components/IconButton.vue";
                             :lname="student.lname" 
                             :active="student.active.toString()"
                         ></student>
+                        <div :class="`student-row`" v-if="Students.length === 0">
+                            <h5 class="table-text rate-table">No Students, add one!</h5>
+                        </div>
                 </div>
             </div>
-            <rate-menu></rate-menu>
+            <rate-menu :default="User.rate"></rate-menu>
         </div>
     </main>
 </template>
@@ -50,12 +55,21 @@ export default {
         IconButton
     },
     async mounted() {
+        this.populateUser(),
         this.getStudents()
     },
     methods: {
+        populateUser() {
+            this.User = {
+                user: getCookie("user"),
+                displayName: decodeURIComponent(getCookie("displayName")),
+                rate: getCookie("rate"),
+            }
+        },
         // TODO: Eventually send the cookie here
         async getStudents() {
-            const res = await fetch("/api/students/read");
+            const user = this.User.user;
+            const res = await fetch(`/api/students/read/${user}`);
             const res_json = await res.json();
             if (!res_json.error) {
                 this.Students = res_json.data;
@@ -70,6 +84,7 @@ export default {
     },
     data() {
         return {
+            User: {},
             Students: [],
         }
     }

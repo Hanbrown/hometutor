@@ -21,6 +21,15 @@ const StudentSchema = new Schema({
         type: Boolean,
         required: true,
         default: true,
+    },
+    rate: {
+        type: Number,
+        required: true,
+        default: 60
+    },
+    user: {
+        type: Number,
+        required: true
     }
 });
 

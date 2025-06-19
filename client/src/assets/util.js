@@ -38,3 +38,9 @@ export const get_charge = (start_s, end_s, rate) => {
     let charge = rate * hrs;
     return charge;
 }
+
+export const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
