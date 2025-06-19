@@ -14,7 +14,7 @@ import IconButton from "../components/IconButton.vue";
             <header>
                 <span class="header-left"
                     ><a class="screen-reader-only">Skip to Content</a
-                    ><a class="nav-back btn" href="/"><font-awesome-icon icon="caret-left" />&nbsp;Back</a></span
+                    ><a class="nav-back btn" href="/landing"><font-awesome-icon icon="caret-left" />&nbsp;Back</a></span
                 >
                 <student-menu :current="CurrentStudent" :students="AllStudents"></student-menu>
                 <auth-menu></auth-menu>

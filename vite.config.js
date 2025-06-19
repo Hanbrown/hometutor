@@ -14,7 +14,8 @@ export default defineConfig({
         outDir: "../build",
         rollupOptions: {
             input: {
-                main: resolve("client", "index.html"),
+                index: resolve("client", "index.html"),
+                landing: resolve("client", "landing.html"),
                 manage: resolve("client", "manage.html"),
             },
         },
