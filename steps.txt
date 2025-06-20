@@ -1,4 +1,3 @@
-Implement user auth
 Add and remove sessions without page reload
 Add and remove students without page reload
 Make session ids count up from earliest to most recent without skipping
@@ -6,3 +5,6 @@ Allow only month and day for date filter
 Allow filtering of students by status
 Fix accessibility issues (contrast, text field labels, button labels)
 Encipher database entries
+Protect other server routes
+Allow typing of am/pm in time field
+BUG: Adding a session and then hitting the date filter causes the new session to be hidden

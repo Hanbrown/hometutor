@@ -2,6 +2,11 @@ import express from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 
+import passport from "passport";
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import Strategy from "passport-google-oauth20/lib/strategy.js";
+
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -14,9 +19,6 @@ import students from "./api/students.js";
 import users from "./api/users.js";
 import logger from './logger.js';
 
-import passport from "passport";
-import session from "express-session";
-import Strategy from "passport-google-oauth20/lib/strategy.js";
 import User from "./schemas/User.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -46,17 +48,31 @@ app.use("/api/students", students);
 app.use("/auth", users);
 
 // Set a static asset folder
-app.use(express.static("build"));
+app.use("/assets", express.static("build/assets"));
 
-/** Sessions and Strategy **/
+/** Sessions **/
 app.use(
     session({
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
+        cookie: {
+            maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
+        },
+        sameSite: true,
+        secure: process.env.NODE_ENV === "production",
+        store: MongoStore.create(
+            {
+                client: mongoose.connection.getClient(),
+                collectionName: String(process.env.MONGO_SESSION_STORE),
+                autoRemove: "interval",
+                autoRemoveInterval: 10 // minutes
+            }
+        )
     })
 );
 
+/** Passport JS **/
 passport.use(
     new Strategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
@@ -68,6 +84,7 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
         logger.debug(accessToken);
         logger.debug(refreshToken);
+
         // Create user JSON object
         const id = profile.id;
         const username = profile.displayName;
@@ -111,25 +128,26 @@ passport.deserializeUser((user, done) => done(null, user));
 app.use(passport.initialize());
 app.use(passport.session());
 
-
+/** Routes **/
 app.get("/", (req, res) => {
     logger.info("Index reached");
     if (req.isAuthenticated()) {
         logger.info("Index is authenticated");
+        res.redirect("/landing");
     }
     else {
         res.clearCookie("user");
         res.clearCookie("displayName");
-        res.clearCookie("connect.sid");
+        res.clearCookie("rate");
     }
     res.sendFile(resolve(__dirname, "build", "index.html"));
 });
 
 app.get("/landing", (req, res) => {
     if (req.isAuthenticated()) {
-        logger.debug("Logged in");
-        // console.log(req.user);
-        // res.cookie("user", req.user.id);
+        logger.info("Logged in");
+
+        res.header('Cache-Control', 'no-store');
         res.sendFile(resolve(__dirname, "build", "landing.html"));
         return;
     }
@@ -144,7 +162,8 @@ app.get("/landing", (req, res) => {
 app.get("/manage/:student", (req, res) => {
     logger.debug("Manage route reached");
     if (req.isAuthenticated()) {
-        // console.log(req.user);
+
+        res.header('Cache-Control', 'no-store');
         res.sendFile(resolve(__dirname, "build", "manage.html"));
     }
     else {
@@ -153,10 +172,11 @@ app.get("/manage/:student", (req, res) => {
     }
 });
 
+/** Auth routes, TODO move these to a separate file **/
 app.get("/api/auth/google", passport.authenticate("google"));
 
+// This is written in Google Cloud
 app.get("/api/auth/google/callback", passport.authenticate("google", {failureRedirect: "/"}), (req, res) => {
-    // console.log(req.user);
     res.cookie("user", req.user.id);
     res.cookie("displayName", req.user.username);
     res.cookie("rate", req.user.rate);
@@ -164,12 +184,27 @@ app.get("/api/auth/google/callback", passport.authenticate("google", {failureRed
 });
 
 app.get("/api/auth/logout", (req, res) => {
-    res.clearCookie("displayName");
+    // Clear cookies
     res.clearCookie("user");
-    res.clearCookie("connect.sid");
+    res.clearCookie("displayName");
     res.clearCookie("rate");
-    req.logout(() => {
-        res.redirect("/");
+
+    // Clear Session
+    req.session.user = null;
+    req.session.save((err) => {
+        if (err) {
+            logger.error(err);
+        }
+
+        req.session.regenerate((err) => {
+            if (err) {
+                logger.error(err);
+            }
+            else {
+                logger.info("Signed out");
+            }
+            res.redirect("/");
+        });
     });
 });
 
