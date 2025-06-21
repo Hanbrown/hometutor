@@ -13,8 +13,8 @@ import { getCookie } from "../assets/util";
         <div class="tile">
             <header>
                 <span class="header-left"><a class="screen-reader-only">Skip to Content</a></span>
-                <h3>Student Management System</h3>
-                <auth-menu>{{ User.displayName }}</auth-menu>
+                <h3>Students</h3>
+                <auth-menu>{{ User.displayName.split(" ")[0] }}</auth-menu>
             </header>
             <div id="student-table">
                 <div class="table-header">

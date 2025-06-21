@@ -34,7 +34,7 @@ import IconButton from "../components/IconButton.vue";
                 <div class="table-header">
                     <span class="check-table">
                         <details>
-                            <summary><font-awesome-icon icon="list-check" /></summary>
+                            <summary><font-awesome-icon icon="print" /></summary>
                             <div class="check-list">
                                 <ul class="check-list-ul">
                                     <li class="check-list-li"><a href="#" @click="checkFiltered">Check All</a></li>
@@ -202,17 +202,43 @@ export default {
          * Filter the "Filtered" list so that it only shows classes in the specified date range (inclusive)
          */
         filterDates() {
-            const start = new Date(document.getElementById("date-start").value);
-            let end = new Date(document.getElementById("date-end").value);
+
+            let start_str = document.getElementById("date-start").value;
+            let end_str = document.getElementById("date-end").value;
+
+            // Format the inputs
+            start_str = this.parse_date(start_str);
+            end_str = this.parse_date(end_str);
+
+            let start, end;
+
+            if (start_str === "invalid") {
+                start = this.Dates.start;
+            }
+            else {
+                start = new Date(start_str);
+            }
+            if (end_str === "invalid") {
+                end = this.Dates.end;
+            }
+            else {
+                end = new Date(end_str);
+            }
 
             // End defaults to 00:00, which is a problem for classes on the end date.
             end.setHours(23);
             end.setMinutes(59);
 
-            this.Dates.start = start;
-            this.Dates.end = end;
+            // Invalidate if end is less than start
+            if (end < start) {
+                window.alert("End date cannot be earlier than start date");
+            }
+            else {
+                this.Dates.start = start;
+                this.Dates.end = end;
 
-            this.Filtered = this.Filtered.filter((el) => ((new Date(el.in_time)) >= start && (new Date(el.in_time)) <= end));
+                this.Filtered = this.Filtered.filter((el) => ((new Date(el.in_time)) >= start && (new Date(el.in_time)) <= end));
+            }
         },
         /**
          * Show all classes and reset the date fields
@@ -249,6 +275,24 @@ export default {
                 }
                 return el;
             });
+        },
+        // Take a date from MM/DD and make it MM/DD/YYYY
+        // Validate the date as well
+        parse_date(date_str) {
+            // No year, 2-digit year, and 4-digit year are ok
+            const month_only = /^\d{1,2}\/\d{1,2}$/;
+            const all = /^\d{1,2}\/\d{1,2}\/(\d{2}|\d{4})$/;
+            
+            if (month_only.test(date_str)) {
+                let comps = date_str.split("/");
+                let year = new Date().getFullYear();
+                comps.push(year.toString());
+                return comps.join("/");
+            }
+            else if (all.test(date_str)) {
+                return date_str;
+            }
+            return "invalid";
         }
     },
     data() {

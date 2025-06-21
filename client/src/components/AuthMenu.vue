@@ -8,10 +8,9 @@ const toggleMenu = () => {
 
 <template>
     <div id="auth-menu">
-        <icon-button classes="btn btn-profile" @clicked="toggleMenu" base="user"></icon-button>
+        <icon-button classes="btn btn-profile" @clicked="toggleMenu" base="user">&nbsp;<slot /></icon-button>
         <div id="signon" class="hidden">
             <!-- <div class="g-signin2" data-onsuccess="onSignIn"></div> -->
-            <a><slot /></a>
             <a href="/api/auth/logout">Logout</a>
         </div>
     </div>
