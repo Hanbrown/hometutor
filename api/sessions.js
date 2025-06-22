@@ -15,7 +15,18 @@ const __dirname = path.resolve(path.dirname(''));
 
 import { export_pdf } from "../pdf/pdf_export.js";
 
-router.get("/read/:student/:id", async (req, res) => {
+const auth = (req, res, next) => {
+    if (req.isAuthenticated()) {
+        logger.info("Logged in");
+        next();
+    }
+    else {
+        logger.warn("Forbidden");
+        res.status(403).json({error: true, msg: "session not valid"});
+    }
+}
+
+router.get("/read/:student/:id", auth, async (req, res) => {
     try {
         logger.info("Reading one session for a student");
         // Does this find the first match, or does it throw an error if there are more than one match?
@@ -39,7 +50,7 @@ router.get("/read/:student/:id", async (req, res) => {
     }
 });
 
-router.get("/read/:student", async (req, res) => {
+router.get("/read/:student", auth, async (req, res) => {
     try {
         logger.info("Reading all sessions for a student");
         const data = await Session.where({ student: req.params.student }).find().sort({ number: -1 });
@@ -62,7 +73,7 @@ router.get("/read/:student", async (req, res) => {
     }
 });
 
-router.post("/add", async (req, res) => {
+router.post("/add", auth, async (req, res) => {
     try {
         logger.info("Adding a session");
         const { student, in_time, out_time, rate, paid } = req.body;
@@ -107,7 +118,7 @@ router.post("/add", async (req, res) => {
     }
 });
 
-router.post("/update", async (req, res) => {
+router.post("/update", auth, async (req, res) => {
     try {
         logger.info("Updating a session");
         const updated = req.body;
@@ -123,7 +134,7 @@ router.post("/update", async (req, res) => {
     }
 });
 
-router.post("/delete", async (req, res) => {
+router.post("/delete", auth, async (req, res) => {
     try {
         logger.info("Deleting a session");
         const { number, student } = req.body;
@@ -141,7 +152,7 @@ router.post("/delete", async (req, res) => {
     }
 });
 
-router.post("/invoice", async (req, res) => {
+router.post("/invoice", auth, async (req, res) => {
     const { student, sessions } = req.body;
     if (sessions.length < 1) {
         res.status(400).json({error: true, msg: "No sessions selected for invoice"});

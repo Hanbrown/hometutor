@@ -42,11 +42,6 @@ mongoose
         logger.error(`Error: ${err}`);
     });
 
-/** Use routes (declared earlier in this file) **/
-app.use("/api/sessions", sessions);
-app.use("/api/students", students);
-app.use("/auth", users);
-
 // Set a static asset folder
 app.use("/assets", express.static("build/assets"));
 
@@ -90,6 +85,13 @@ passport.use(
         const username = profile.displayName;
         const email = profile.emails[0].value;
 
+        // Check if email is allowed
+        const allowlist = process.env.ALLOWLIST.split(",");
+        if (allowlist.indexOf(email) === -1) {
+            logger.error("User not allowed");
+            return done(null, null);
+        }
+
         let the_user;
 
         // Check if user exists, create new if it doesn't
@@ -128,6 +130,22 @@ passport.deserializeUser((user, done) => done(null, user));
 app.use(passport.initialize());
 app.use(passport.session());
 
+/** Use routes (declared earlier in this file) Must be after app.use(passport) **/
+app.use("/api/sessions", sessions);
+app.use("/api/students", students);
+app.use("/auth", users);
+
+const auth = (req, res, next) => {
+    if (req.isAuthenticated()) {
+        logger.info("Logged in");
+        next();
+    }
+    else {
+        logger.warn("Forbidden");
+        res.redirect("/forbidden");
+    }
+}
+
 /** Routes **/
 app.get("/", (req, res) => {
     logger.info("Index reached");
@@ -143,40 +161,35 @@ app.get("/", (req, res) => {
     res.sendFile(resolve(__dirname, "build", "index.html"));
 });
 
-app.get("/landing", (req, res) => {
-    if (req.isAuthenticated()) {
-        logger.info("Logged in");
-
+app.get("/landing", auth, (req, res) => {
         res.header('Cache-Control', 'no-store');
         res.sendFile(resolve(__dirname, "build", "landing.html"));
         return;
-    }
-    else {
-        logger.debug("Landing Redirecting...");
-        res.redirect("/");
-        return;
-    }
-    
 });
 
-app.get("/manage/:student", (req, res) => {
-    logger.debug("Manage route reached");
-    if (req.isAuthenticated()) {
+app.get("/manage", auth, (req, res) => {
+    res.redirect("/landing");
+});
 
-        res.header('Cache-Control', 'no-store');
-        res.sendFile(resolve(__dirname, "build", "manage.html"));
-    }
-    else {
-        logger.debug("Manage Redirecting...");
-        res.redirect("/");
-    }
+app.get("/manage/:student", auth, (req, res) => {
+    logger.debug("Manage route reached");
+    res.header('Cache-Control', 'no-store');
+    res.sendFile(resolve(__dirname, "build", "manage.html"));
+});
+
+app.get("/forbidden", (req, res) => {
+    res.sendFile(resolve(__dirname, "build", "forbidden.html"));
+});
+
+app.get("/logout", (req, res) => {
+    res.sendFile(resolve(__dirname, "build", "logout.html"));
 });
 
 /** Auth routes, TODO move these to a separate file **/
 app.get("/api/auth/google", passport.authenticate("google"));
 
 // This is written in Google Cloud
-app.get("/api/auth/google/callback", passport.authenticate("google", {failureRedirect: "/"}), (req, res) => {
+app.get("/api/auth/google/callback", passport.authenticate("google", {failureRedirect: "/forbidden"}), (req, res) => {
     res.cookie("user", req.user.id);
     res.cookie("displayName", req.user.username);
     res.cookie("rate", req.user.rate);
@@ -203,10 +216,12 @@ app.get("/api/auth/logout", (req, res) => {
             else {
                 logger.info("Signed out");
             }
-            res.redirect("/");
+            res.redirect("/logout");
         });
     });
 });
 
 /** Start server **/
 app.listen(port, () => logger.info(`Server running on port ${port}`));
+
+export default app;

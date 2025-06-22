@@ -10,7 +10,18 @@ import logger from '../logger.js';
 import Student from "../schemas/Student.js";
 import Session from "../schemas/Session.js";
 
-router.get("/read/:user/:id", async (req, res) => {
+const auth = (req, res, next) => {
+    if (req.isAuthenticated()) {
+        logger.info("Logged in");
+        next();
+    }
+    else {
+        logger.warn("Forbidden");
+        res.status(403).json({error: true, msg: "session not valid"});
+    }
+}
+
+router.get("/read/:user/:id", auth, async (req, res) => {
     try {
         logger.info("Reading a student");
         const data = await Student.where({ id_short: req.params.id, user: req.params.user }).findOne();
@@ -22,6 +33,7 @@ router.get("/read/:user/:id", async (req, res) => {
                 fname: data.fname,
                 lname: data.lname,
                 active: data.active,
+                rate: data.rate,
             }
         });
     }
@@ -32,7 +44,7 @@ router.get("/read/:user/:id", async (req, res) => {
     }
 });
 
-router.get("/read/:user", async (req, res) => {
+router.get("/read/:user", auth, async (req, res) => {
     try {
         logger.info("Reading all students");
         const data = await Student.where({ user: req.params.user }).find().sort({ lname: 1 });
@@ -42,6 +54,7 @@ router.get("/read/:user", async (req, res) => {
                 fname: datum.fname,
                 lname: datum.lname,
                 active: datum.active,
+                rate: datum.rate,
             }
         });
         res.json({ error: false, msg: "Read all students", data: data_res});
@@ -52,7 +65,7 @@ router.get("/read/:user", async (req, res) => {
     }
 });
 
-router.post("/add", async (req, res) => {
+router.post("/add", auth, async (req, res) => {
     try {
         const { fname, lname, active, user } = req.body;
 
@@ -86,7 +99,7 @@ router.post("/add", async (req, res) => {
     }
 });
 
-router.post("/update", async (req, res) => {
+router.post("/update", auth, async (req, res) => {
     try {
         const updated = req.body;
         const doc = await Student.where({ id_short: updated.id_short, user: updated.user }).findOne();
@@ -107,7 +120,7 @@ router.post("/update", async (req, res) => {
 /**
  * Delete this student and all their classes. DANGEROUS!!
  */
-router.delete("/delete", async (req, res) => {
+router.delete("/delete", auth, async (req, res) => {
     try {
         const { id, user } = req.body;
         let response = await Student.where({ id_short: id, user: user }).findOneAndDelete();

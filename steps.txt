@@ -1,6 +1,4 @@
 Server
-Protect other server routes
-Route for manage and no supplied id
 
 Client
 Add and remove sessions without page reload

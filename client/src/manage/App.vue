@@ -17,7 +17,7 @@ import IconButton from "../components/IconButton.vue";
                     ><a class="nav-back btn" href="/landing"><font-awesome-icon icon="caret-left" />&nbsp;Back</a></span
                 >
                 <student-menu :current="CurrentStudent" :students="AllStudents"></student-menu>
-                <auth-menu>{{ User.displayName }}</auth-menu>
+                <auth-menu>{{ User.displayName.split(" ")[0] }}</auth-menu>
             </header>
             <div class="session-controls">
                 <icon-button classes="btn btn-invoice" @clicked="get_invoice" base="print">&nbsp;Invoice</icon-button>

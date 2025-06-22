@@ -5,6 +5,10 @@ main {
     padding: 20px;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
 .tile {
     width: 50%;
     height: 700px;

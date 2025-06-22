@@ -17,6 +17,8 @@ export default defineConfig({
                 index: resolve("client", "index.html"),
                 landing: resolve("client", "landing.html"),
                 manage: resolve("client", "manage.html"),
+                logout: resolve("client", "logout.html"),
+                forbidden: resolve("client", "forbidden.html")
             },
         },
     },
