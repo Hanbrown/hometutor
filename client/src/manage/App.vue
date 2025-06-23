@@ -17,14 +17,16 @@ import IconButton from "../components/IconButton.vue";
                     ><a class="nav-back btn" href="/landing"><font-awesome-icon icon="caret-left" />&nbsp;Back</a></span
                 >
                 <student-menu :current="CurrentStudent" :students="AllStudents"></student-menu>
-                <auth-menu>{{ User.displayName.split(" ")[0] }}</auth-menu>
+                <auth-menu>{{ User.displayName ? User.displayName.split(" ")[0] : "Joost" }}</auth-menu>
             </header>
             <div class="session-controls">
-                <icon-button classes="btn btn-invoice" @clicked="get_invoice" base="print">&nbsp;Invoice</icon-button>
-                <icon-button classes="btn btn-add-class" @clicked="add_session">&nbsp;New Class</icon-button>
+                <icon-button classes="btn btn-invoice" label="Generate invoice" @clicked="get_invoice" base="print">&nbsp;Invoice</icon-button>
+                <icon-button classes="btn btn-add-class" label="Add new class" @clicked="add_session">&nbsp;New Class</icon-button>
                 <span class="date-range">
+                    <label class="screen-reader-only" for="date-start">Date start</label>
                     <input type="text" id="date-start" :value="format_date(Dates.start)">
                     &ndash;
+                    <label class="screen-reader-only" for="date-end">Date end</label>
                     <input type="text" id="date-end" :value="format_date(Dates.end)">
                     <button class="btn btn-dates" @click="filterDates">Filter</button>
                     <button class="btn btn-dates" @click="resetDateFilter">Reset</button>
@@ -34,7 +36,7 @@ import IconButton from "../components/IconButton.vue";
                 <div class="table-header">
                     <span class="check-table">
                         <details>
-                            <summary><font-awesome-icon icon="print" /></summary>
+                            <summary><font-awesome-icon icon="print" /><span class="screen-reader-only">Filter sessions for invoice</span></summary>
                             <div class="check-list">
                                 <ul class="check-list-ul">
                                     <li class="check-list-li"><a href="#" @click="checkFiltered">Check All</a></li>
@@ -72,7 +74,7 @@ import IconButton from "../components/IconButton.vue";
 
                 </div>
             </div>
-            <name-menu :fname="CurrentStudent.fname" :lname="CurrentStudent.lname" :active="CurrentStudent.active"></name-menu>
+            <name-menu :fname="CurrentStudent.fname" :lname="CurrentStudent.lname" :active="CurrentStudent.active" :rate="CurrentStudent.rate"></name-menu>
         </div>
     </main>
 </template>
@@ -97,7 +99,6 @@ export default {
     methods: {
         populateUser() {
             this.User = {
-                user: getCookie("user"),
                 displayName: decodeURIComponent(getCookie("displayName")),
                 rate: getCookie("rate"),
             }
@@ -118,14 +119,13 @@ export default {
                 },
                 body: JSON.stringify({
                     student: Number(localStorage.getItem("student")),
-                    in_time: Date.now()-(1000*60*60),
+                    in_time: Date.now()-(1000*60*60), // One hour before
                     out_time: Date.now(),
-                    rate: 65,
+                    rate: this.CurrentStudent.rate,
                     paid: false,
                 }),
             });
             const res_json = await res.json();
-            console.log(res_json.data);
             if (!res_json.error) {
                 // window.location.reload();
                 let new_obj = res_json.data;
@@ -144,7 +144,6 @@ export default {
             }
         },
         async getSessions() {
-            const user = getCookie("user");
             const res = await fetch(`/api/sessions/read/${localStorage.getItem("student")}`);
             const res_json = await res.json();
             if (!res_json.error) {
@@ -156,8 +155,7 @@ export default {
             }
         },
         async getStudents() {
-            const user = getCookie("user");
-            const res = await fetch(`/api/students/read/${user}`);
+            const res = await fetch(`/api/students/read`);
             const res_json = await res.json();
             if (!res_json.error) {
                 this.AllStudents = res_json.data;
@@ -194,9 +192,11 @@ export default {
             }
         },
         createDateFilter() {
-            const start = this.Sessions[this.Sessions.length - 1].in_time;
-            const end = this.Sessions[0].in_time;
-            this.Dates = { start: start, end: end };
+            if (this.Sessions.length > 0) {
+                const start = this.Sessions[this.Sessions.length - 1].in_time;
+                const end = this.Sessions[0].in_time;
+                this.Dates = { start: start, end: end };
+            }
         },
         /**
          * Filter the "Filtered" list so that it only shows classes in the specified date range (inclusive)

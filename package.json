@@ -24,6 +24,7 @@
         "passport-google-oauth20": "^2.0.0",
         "pdfkit": "^0.17.1",
         "vite": "^6.3.5",
+        "@vitejs/plugin-vue": "^5.2.3",
         "vue": "^3.5.13",
         "winston": "^3.17.0"
     },

@@ -13,13 +13,15 @@ import { fileURLToPath } from "node:url";
 import dotenv from "dotenv" // For .env file
 dotenv.config();
 
+import logger from './logger.js';
+
 // Models for MongoDB
 import sessions from "./api/sessions.js";
 import students from "./api/students.js";
 import users from "./api/users.js";
-import logger from './logger.js';
 
 import User from "./schemas/User.js";
+import Student from "./schemas/Student.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -133,16 +135,21 @@ app.use(passport.session());
 /** Use routes (declared earlier in this file) Must be after app.use(passport) **/
 app.use("/api/sessions", sessions);
 app.use("/api/students", students);
-app.use("/auth", users);
+app.use("/api/users", users);
 
 const auth = (req, res, next) => {
-    if (req.isAuthenticated()) {
-        logger.info("Logged in");
-        next();
+    if (process.env.NODE_ENV === "production") {
+        if (req.isAuthenticated()) {
+            logger.info("Logged in");
+            next();
+        }
+        else {
+            logger.warn("Forbidden");
+            res.redirect("/forbidden");
+        }
     }
     else {
-        logger.warn("Forbidden");
-        res.redirect("/forbidden");
+        next()
     }
 }
 
@@ -152,9 +159,9 @@ app.get("/", (req, res) => {
     if (req.isAuthenticated()) {
         logger.info("Index is authenticated");
         res.redirect("/landing");
+        return;
     }
     else {
-        res.clearCookie("user");
         res.clearCookie("displayName");
         res.clearCookie("rate");
     }
@@ -171,10 +178,17 @@ app.get("/manage", auth, (req, res) => {
     res.redirect("/landing");
 });
 
-app.get("/manage/:student", auth, (req, res) => {
+app.get("/manage/:student", auth, async (req, res) => {
     logger.debug("Manage route reached");
-    res.header('Cache-Control', 'no-store');
-    res.sendFile(resolve(__dirname, "build", "manage.html"));
+    if (await Student.exists({ id_short: req.params.student, user: req.user.id }) !== null) {
+        res.header('Cache-Control', 'no-store');
+        res.sendFile(resolve(__dirname, "build", "manage.html"));
+        return;
+    }
+    else {
+        logger.warn("Unauthorized student view attempted");
+        res.redirect("/landing");
+    }
 });
 
 app.get("/forbidden", (req, res) => {
@@ -190,7 +204,6 @@ app.get("/api/auth/google", passport.authenticate("google"));
 
 // This is written in Google Cloud
 app.get("/api/auth/google/callback", passport.authenticate("google", {failureRedirect: "/forbidden"}), (req, res) => {
-    res.cookie("user", req.user.id);
     res.cookie("displayName", req.user.username);
     res.cookie("rate", req.user.rate);
     res.redirect("/landing");
@@ -198,7 +211,6 @@ app.get("/api/auth/google/callback", passport.authenticate("google", {failureRed
 
 app.get("/api/auth/logout", (req, res) => {
     // Clear cookies
-    res.clearCookie("user");
     res.clearCookie("displayName");
     res.clearCookie("rate");
 
@@ -222,6 +234,6 @@ app.get("/api/auth/logout", (req, res) => {
 });
 
 /** Start server **/
-app.listen(port, () => logger.info(`Server running on port ${port}`));
+app.listen(port, () => logger.info(`Server running on port ${port} on ${process.env.NODE_ENV}`));
 
 export default app;

@@ -29,6 +29,10 @@ const SessionSchema = new Schema({
         required: true,
         default: false,
     },
+    user: {
+        type: Number,
+        required: true,
+    }
 });
 
 const Session = model("session", SessionSchema);

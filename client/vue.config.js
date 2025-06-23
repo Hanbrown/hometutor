@@ -1,11 +1,6 @@
 module.exports = {
     pages: {
-        index: {
-            entry: "src/index/main.js",
-            template: "public/index.html",
-            filename: "index.html",
-            title: "Student Management System"
-        },
+        landing: "src/landing/main.js",
         manage: "src/manage/main.js"
     },
     outputDir: "build",

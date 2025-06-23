@@ -8,21 +8,24 @@ const router = express.Router();
 import logger from '../logger.js';
 
 import Session from "../schemas/Session.js";
-import Student from "../schemas/Student.js";
-import User from "../schemas/User.js";
 import path from "node:path";
 const __dirname = path.resolve(path.dirname(''));
 
 import { export_pdf } from "../pdf/pdf_export.js";
 
 const auth = (req, res, next) => {
-    if (req.isAuthenticated()) {
-        logger.info("Logged in");
-        next();
+    if (process.env.NODE_ENV === "production") {
+        if (req.isAuthenticated()) {
+            logger.info("Logged in");
+            next();
+        }
+        else {
+            logger.warn("Forbidden");
+            res.status(403).json({error: true, msg: "session not valid"});
+        }
     }
     else {
-        logger.warn("Forbidden");
-        res.status(403).json({error: true, msg: "session not valid"});
+        next();
     }
 }
 
@@ -30,21 +33,25 @@ router.get("/read/:student/:id", auth, async (req, res) => {
     try {
         logger.info("Reading one session for a student");
         // Does this find the first match, or does it throw an error if there are more than one match?
-        const data = await Session.where({ number: req.params.id, student: req.params.student }).findOne();
+        const data = await Session.where({ number: req.params.id, student: req.params.student, user: req.user.id }).find();
+        if (data.length > 1) {
+            throw new Error("More than one document found");
+        }
         res.json({
             error: false, 
             msg: "Read one session", 
             data: {
-                number: data.number,
-                student: data.student,
-                in_time: data.in_time,
-                out_time: data.out_time,
-                rate: data.rate,
-                paid: data.paid,
+                number: data[0].number,
+                student: data[0].student,
+                in_time: data[0].in_time,
+                out_time: data[0].out_time,
+                rate: data[0].rate,
+                paid: data[0].paid,
             }
         });
     }
-    catch (err) {
+    catch(err) {
+        logger.error(err);
         logger.error("Error getting one session");
         res.json({error: true, msg: "Error!"});
     }
@@ -53,7 +60,7 @@ router.get("/read/:student/:id", auth, async (req, res) => {
 router.get("/read/:student", auth, async (req, res) => {
     try {
         logger.info("Reading all sessions for a student");
-        const data = await Session.where({ student: req.params.student }).find().sort({ number: -1 });
+        const data = await Session.where({ student: req.params.student, user: req.user.id }).find().sort({ number: -1 });
         const data_res = data.map(datum => {
             return {
                 number: datum.number,
@@ -67,7 +74,7 @@ router.get("/read/:student", auth, async (req, res) => {
         });
         res.json({ error: false, msg: "Read all sessions", data: data_res});
     }
-    catch (err) {
+    catch {
         logger.error("Error getting all sessions");
         res.json({error: true, msg: "Error!"});
     }
@@ -77,9 +84,10 @@ router.post("/add", auth, async (req, res) => {
     try {
         logger.info("Adding a session");
         const { student, in_time, out_time, rate, paid } = req.body;
+        const user = req.user.id;
 
         let number;
-        const latestRecord = await Session.where({ student: Number(student) }).find().sort({ number: -1 }).limit(1);
+        const latestRecord = await Session.where({ student: Number(student), user: req.user.id }).find().sort({ number: -1 }).limit(1);
         if (latestRecord.length === 1) {
             number = latestRecord[0].number + 1;
         }
@@ -94,6 +102,7 @@ router.post("/add", auth, async (req, res) => {
             out_time,
             rate,
             paid,
+            user,
         });
 
         const response = await newSession.save();
@@ -121,8 +130,9 @@ router.post("/add", auth, async (req, res) => {
 router.post("/update", auth, async (req, res) => {
     try {
         logger.info("Updating a session");
-        const updated = req.body;
-        const doc = await Session.where({ student: updated.student, number: updated.number }).findOne()
+        let updated = req.body;
+        updated["user"] = req.user.id;
+        const doc = await Session.where({ number: updated.number, student: updated.student, user: updated.user }).findOne()
         const response = await doc.overwrite(updated).save();
         logger.debug(response);
         res.json({error: false, msg: "Updated a session"});
@@ -139,7 +149,7 @@ router.post("/delete", auth, async (req, res) => {
         logger.info("Deleting a session");
         const { number, student } = req.body;
         logger.debug(JSON.stringify(req.body));
-        const response = await Session.where({ number: number, student: student }).findOneAndDelete()
+        const response = await Session.where({ number: number, student: student, user: req.user.id }).findOneAndDelete()
         if (response === null) {
             throw new Error("Document not found");
         }

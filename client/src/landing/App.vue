@@ -14,7 +14,7 @@ import { getCookie } from "../assets/util";
             <header>
                 <span class="header-left"><a class="screen-reader-only">Skip to Content</a></span>
                 <h3>Students</h3>
-                <auth-menu>{{ User.displayName.split(" ")[0] }}</auth-menu>
+                <auth-menu>{{ User.displayName ? User.displayName.split(" ")[0] : "Joost" }}</auth-menu>
             </header>
             <div id="student-table">
                 <div class="table-header">
@@ -23,11 +23,11 @@ import { getCookie } from "../assets/util";
                     <span class="table-text student-status">All</span>
                     <span class="table-text student-del-header"></span>
                     <span class="table-text student-btn-header">
-                        <icon-button classes="btn btn-add" base="plus" alt="caret-up" @clicked="toggle_new_student"></icon-button>
+                        <icon-button classes="btn btn-add" base="plus" alt="caret-up" label="Open/close new student menu" @clicked="toggle_new_student"></icon-button>
                     </span>
                 </div>
                 <div class="row-container">
-                        <new-student id="new-student-menu" class="hidden" @cancelled="toggle_new_student"></new-student>
+                        <new-student id="new-student-menu" class="hidden" :default="User.rate" @cancelled="toggle_new_student"></new-student>
                         <student v-for="(student) in Students"
                             :key="student.id_short"
                             :id="student.id_short"
@@ -40,7 +40,7 @@ import { getCookie } from "../assets/util";
                         </div>
                 </div>
             </div>
-            <rate-menu :default="User.rate"></rate-menu>
+            <rate-menu :default="User.rate" @saved="save_rate"></rate-menu>
         </div>
     </main>
 </template>
@@ -61,21 +61,38 @@ export default {
     methods: {
         populateUser() {
             this.User = {
-                user: getCookie("user"),
                 displayName: decodeURIComponent(getCookie("displayName")),
                 rate: getCookie("rate"),
             }
         },
         // TODO: Eventually send the cookie here
         async getStudents() {
-            const user = this.User.user;
-            const res = await fetch(`/api/students/read/${user}`);
+            const res = await fetch(`/api/students/read`);
             const res_json = await res.json();
             if (!res_json.error) {
                 this.Students = res_json.data;
             }
             else {
                 console.log("Error");
+            }
+        },
+        async save_rate() {
+            const _rate = document.getElementById("rate-field").value;
+            const res = await fetch(`/api/users/update`, {
+                method: "post",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    rate: _rate
+                })
+            });
+            if (res.error) {
+                window.alert(res.msg);
+            }
+            else {
+                this.User.rate = _rate;
             }
         },
         toggle_new_student() {

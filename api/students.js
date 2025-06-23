@@ -11,20 +11,31 @@ import Student from "../schemas/Student.js";
 import Session from "../schemas/Session.js";
 
 const auth = (req, res, next) => {
-    if (req.isAuthenticated()) {
-        logger.info("Logged in");
-        next();
+    if (process.env.NODE_ENV === "production") {
+        if (req.isAuthenticated()) {
+            logger.info("Logged in");
+            next();
+        }
+        else {
+            logger.warn("Forbidden");
+            res.status(403).json({error: true, msg: "session not valid"});
+        }
     }
     else {
-        logger.warn("Forbidden");
-        res.status(403).json({error: true, msg: "session not valid"});
+        next();
     }
 }
 
-router.get("/read/:user/:id", auth, async (req, res) => {
+router.get("/read/:id", auth, async (req, res) => {
     try {
         logger.info("Reading a student");
-        const data = await Student.where({ id_short: req.params.id, user: req.params.user }).findOne();
+        let data;
+        if (process.env.NODE_ENV === "production") {
+            data = await Student.where({ id_short: req.params.id, user: req.user.id }).findOne();
+        }
+        else {
+            data = await Student.where({ id_short: req.params.id }).findOne();
+        }
         res.json({
             error: false, 
             msg: "Read one student", 
@@ -38,16 +49,22 @@ router.get("/read/:user/:id", auth, async (req, res) => {
         });
     }
     catch (err) {
-        logger.error("Error getting all students");
+        logger.error("Error getting one student");
         logger.error(err);
         res.json({error: true, msg: "Error!"});
     }
 });
 
-router.get("/read/:user", auth, async (req, res) => {
+router.get("/read", auth, async (req, res) => {
     try {
         logger.info("Reading all students");
-        const data = await Student.where({ user: req.params.user }).find().sort({ lname: 1 });
+        let data;
+        if (process.env.NODE_ENV === "production") {
+            data = await Student.where({ user: req.user.id }).find().sort({ lname: 1 });
+        }
+        else {
+            data = await Student.find().sort({ lname: 1 });
+        }
         const data_res = data.map(datum => {
             return {
                 id_short: datum.id_short,
@@ -59,7 +76,7 @@ router.get("/read/:user", auth, async (req, res) => {
         });
         res.json({ error: false, msg: "Read all students", data: data_res});
     }
-    catch (err) {
+    catch {
         logger.error(`Error in /read: ${req.originalUrl}`);
         res.json({error: true, msg: "Error!"});
     }
@@ -67,7 +84,10 @@ router.get("/read/:user", auth, async (req, res) => {
 
 router.post("/add", auth, async (req, res) => {
     try {
-        const { fname, lname, active, user } = req.body;
+        const { fname, lname, active, rate } = req.body;
+        const user = req.user.id;
+
+        logger.debug(JSON.stringify(req.body));
 
         let id_short = Math.floor(Math.random() * 1000);
 
@@ -76,6 +96,7 @@ router.post("/add", auth, async (req, res) => {
             fname,
             lname,
             active,
+            rate,
             user
         });
 
@@ -89,19 +110,22 @@ router.post("/add", auth, async (req, res) => {
                 id_short: response.id_short,
                 fname: response.fname,
                 lname: response.lname,
-                active: response.active
+                active: response.active,
+                rate: response.rate
             }
         });
     }
     catch {
-        logger.error(`Error in students/add: ${req.body}`);
+        logger.error(`Error in students/add: ${JSON.stringify(req.body)}`);
         res.json({error: true, msg: "Error!"});
     }
 });
 
 router.post("/update", auth, async (req, res) => {
     try {
-        const updated = req.body;
+        let updated = req.body;
+        logger.debug(JSON.stringify(updated));
+        updated["user"] = req.user.id;
         const doc = await Student.where({ id_short: updated.id_short, user: updated.user }).findOne();
         if (doc === null) {
             throw new Error("No student found");
@@ -111,7 +135,7 @@ router.post("/update", auth, async (req, res) => {
         logger.info("Updated a student");
         res.json({error: false, msg: "Updated a student"});
     }
-    catch (err) {
+    catch {
         logger.error(`Error in students/update: ${req.body}`);
         res.json({error: true, msg: "Couldn't update the student"});
     }
@@ -122,12 +146,12 @@ router.post("/update", auth, async (req, res) => {
  */
 router.delete("/delete", auth, async (req, res) => {
     try {
-        const { id, user } = req.body;
-        let response = await Student.where({ id_short: id, user: user }).findOneAndDelete();
+        const { id } = req.body;
+        let response = await Student.where({ id_short: id, user: req.user.id }).findOneAndDelete();
         if (response === null) {
             throw new Error("Document not found");
         }
-        response = await Session.deleteMany({ student: id });
+        response = await Session.deleteMany({ student: id, user: req.user.id });
         if (response === null) {
             throw new Error("Document not found");
         }

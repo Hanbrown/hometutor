@@ -1,10 +1,9 @@
 Server
 
 Client
-Add and remove sessions without page reload
+Remove sessions without page reload
 Add and remove students without page reload
 Allow filtering of students by status
-Fix accessibility issues (contrast, text field labels, button labels)
 
 Bugs
 Adding a session and then hitting the date filter causes the new session to be hidden

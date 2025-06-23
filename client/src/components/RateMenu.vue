@@ -1,14 +1,17 @@
+<script setup>
+import IconButton from './IconButton.vue';
+const emit = defineEmits(["saved"]);
+</script>
 <template>
     <div id="rate-menu">
-        <h5>Default Rate: $</h5>
-        <input type="text" :value="default" />
-        <h5>per hour&nbsp;</h5>
-        <icon-button classes="btn btn-save" base="save"></icon-button>
+        <label>Default Rate: $</label>
+        <input id="rate-field" type="text" :value="default" />
+        <label>/hour&nbsp;</label>
+        <icon-button classes="btn btn-save" label="Save rate" base="save" @clicked="emit(`saved`)"></icon-button>
     </div>
 </template>
 
 <script>
-import IconButton from './IconButton.vue';
 
 export default {
     name: "RateMenu",

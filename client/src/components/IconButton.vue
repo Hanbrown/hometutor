@@ -8,6 +8,7 @@ const emit = defineEmits(["clicked"]);
     <button :class="classes" @click="switchIcon(); emit('clicked')">
         <font-awesome-icon :icon="['fas', the_icon]" />
         <slot />
+        <span class="screen-reader-only">{{ label }}</span>
     </button>
 </template>
 
@@ -17,6 +18,7 @@ export default {
     props: {
         base: { required: false, default: "plus", type: String },
         alt: { required: false, default: "", type: String },
+        label: { required: true, default: "A button", type: String},
         classes: { required: false, default: "btn", type: String },
     },
     data () {

@@ -5,7 +5,6 @@ import path from "node:path";
 const __dirname = path.resolve(path.dirname(''));
 
 const TIMES = path.resolve(__dirname, "pdf", "times.ttf");
-const TIMES_B = path.resolve(__dirname, "pdf", "timesbd.ttf");
 const TIMES_BI = path.resolve(__dirname, "pdf", "timesbi.ttf");
 const COMIC = path.resolve(__dirname, "pdf", "comic.ttf");
 const QR_CODE = path.resolve(__dirname, "pdf", "PayPal.JPG");
@@ -139,7 +138,7 @@ export const export_pdf = async (student, sessions) => {
     });
 };
 
-const stu = { fname: "Pranav", lname: "Rao" };
+// const stu = { fname: "Pranav", lname: "Rao" };
 
 // From earliest to latest
 // const s = [

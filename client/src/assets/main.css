@@ -19,8 +19,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .screen-reader-only {
-    font-size: 1px;
-    color: transparent;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
 }
 
 .hidden {
@@ -109,6 +115,10 @@ summary:hover {
 .name-list-li a:hover {
     background-color: #ffe4c4;
     cursor: pointer;
+}
+
+#new_student_rate {
+    width: 40px;
 }
 
 #auth-menu {
@@ -406,8 +416,42 @@ summary:hover {
 .add-menu {
     display: flex;
 }
-.add-menu input {
+
+.flex-05 {
+    flex: 5%;
+}
+.flex-10 {
+    flex: 10%;
+}
+.flex-15 {
+    flex: 15%;
+}
+.flex-20 {
+    flex: 20%;
+}
+.flex-25 {
+    flex: 25%;
+}
+.flex-30 {
+    flex: 30%;
+}
+.flex-40 {
+    flex: 40%;
+}
+.flex-50 {
+    flex: 50%;
+}
+.flex-60 {
+    flex: 60%;
+}
+.flex-70 {
+    flex: 70%;
+}
+
+.add-menu input[type="text"] {
     font-size: 20px;
+    width: 85%;
+    margin-left: 5px;
 }
 .student-row {
     line-height: 44px;
@@ -507,17 +551,31 @@ summary:hover {
 }
 
 .edit-name {
-    margin: 5px;
+    position: absolute;
+    bottom: 10px;
+    left: 30px;
 }
 
 .edit-name label {
     margin: 10px 5px 10px 10px;
 }
 
-.edit-name input{
-    font-size: 20px;
-    width: 9rem;
+.edit-name input {
     margin: 10px 10px 10px 0px;
+    font-size: 20px;
+}
+
+.edit-name input[type="text"]{
+    width: 9rem;
+}
+
+#rate-field {
+    width: 40px;
+    margin-right: 0px;
+}
+
+#active {
+    margin-right: 2rem;
 }
 
 .date-range {

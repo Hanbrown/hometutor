@@ -1,6 +1,4 @@
 <script setup>
-import ManageBtn from './ManageBtn.vue';
-import DeleteStudent from './DeleteStudent.vue';
 import { format_date, format_time, get_charge } from "../assets/util";
 import IconButton from './IconButton.vue';
 
@@ -16,8 +14,8 @@ const openDetails = (class_id) => {
     <div :id="`row-${id}`" :class="`session-row ${paid ? '' : 'unpaid'}`">
         <div class="row-top">
             <!-- Show either a checked or unchecked box -->
-            <span v-if="selected" class="table-text check-table"><input type="checkbox" checked @change="emit('selected')"/></span>
-            <span v-else class="table-text check-table"><input type="checkbox" unchecked @change="emit('selected')"/></span>
+            <span v-if="selected" class="table-text check-table"><label class="screen-reader-only" :for="`${id}-checkbox`">Use in invoice</label><input :id="`${id}-checkbox`" type="checkbox" checked @change="emit('selected')"/></span>
+            <span v-else class="table-text check-table"><label class="screen-reader-only" :for="`${id}-checkbox`">Use in invoice</label><input :id="`${id}-checkbox`" type="checkbox" unchecked @change="emit('selected')"/></span>
             <!-- All the other fields -->
             <span class="table-text id-table">{{ id }}</span>
             <span class="table-text date-table">{{ format_date(time_in) }}</span>
@@ -26,7 +24,7 @@ const openDetails = (class_id) => {
             <span class="table-text rate-table">${{ rate }}</span>
             <span class="table-text charge-table">${{ get_charge(time_in, time_out, rate) }}</span>
             <span class="table-text btn-table">
-                <icon-button classes="btn btn-manage" @clicked="openDetails(id)" base="pencil" alt="caret-up"></icon-button>
+                <icon-button classes="btn btn-manage" label="Manage this session" @clicked="openDetails(id)" base="pencil" alt="caret-up"></icon-button>
             </span>
         </div>
         <div :id="`details-${id}`" class="row-bottom hidden">
@@ -42,8 +40,8 @@ const openDetails = (class_id) => {
             <span class="table-input time-table class-in"><input type="text" :id="`${id}-outtime`" :value="`${format_time(time_out)}`"></span>
             <span class="table-input rate-table"><input type="text" :id="`${id}-rate`" :value="rate"></span>
             <span class="table-input btn-table-input">
-                <icon-button classes="btn btn-add" @clicked="editSession" base="save"></icon-button>&nbsp;&nbsp;
-                <icon-button classes="btn btn-del" @clicked="deleteSession" base="minus"></icon-button>
+                <icon-button classes="btn btn-save" label="Save changes" @clicked="editSession" base="save"></icon-button>&nbsp;&nbsp;
+                <icon-button classes="btn btn-del" label="Delete session" @clicked="deleteSession" base="minus"></icon-button>
             </span>
         </div>
     </div>
@@ -171,23 +169,25 @@ export default {
          * Delete a session
          */
         async deleteSession() {
-            const res = await fetch(`/api/sessions/delete`, {
-                method: "post",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    number: this.id,
-                    student: localStorage.getItem("student"),
-                }),
-            });
-            const res_json = await res.json();
-            if (!res_json.error) {
-                window.location.reload();
-            }
-            else {
-                console.error(res_json.msg);
+            if (window.confirm("Delete this session?")) {
+                const res = await fetch(`/api/sessions/delete`, {
+                    method: "post",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        number: this.id,
+                        student: localStorage.getItem("student"),
+                    }),
+                });
+                const res_json = await res.json();
+                if (!res_json.error) {
+                    window.location.reload();
+                }
+                else {
+                    console.error(res_json.msg);
+                }
             }
         }
     }
