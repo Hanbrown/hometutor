@@ -89,7 +89,13 @@ router.post("/add", auth, async (req, res) => {
 
         logger.debug(JSON.stringify(req.body));
 
-        let id_short = Math.floor(Math.random() * 1000);
+        
+        // Create random 3-digit ID, then check for collisions
+        let id_short, doc;
+        do {
+            id_short = Math.floor(Math.random() * 1000);
+            doc = await Student.where({ id_short: id_short, user: user }).findOne();
+        } while(doc !== null)
 
         const newStudent = Student({
             id_short,

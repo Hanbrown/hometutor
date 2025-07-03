@@ -78,7 +78,7 @@ passport.use(
     new Strategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: `http://localhost:${port}/api/auth/google/callback`,
+        callbackURL: `/api/auth/google/callback`,
         scope: ['profile', 'email'],
         failureRedirect: "/",
     }, 

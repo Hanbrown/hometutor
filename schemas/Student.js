@@ -28,7 +28,7 @@ const StudentSchema = new Schema({
         default: 60
     },
     user: {
-        type: Number,
+        type: String,
         required: true
     }
 });

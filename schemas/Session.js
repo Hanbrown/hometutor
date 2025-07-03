@@ -30,7 +30,7 @@ const SessionSchema = new Schema({
         default: false,
     },
     user: {
-        type: Number,
+        type: String,
         required: true,
     }
 });
