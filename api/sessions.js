@@ -165,7 +165,13 @@ router.post("/delete", auth, async (req, res) => {
 router.post("/invoice", auth, async (req, res) => {
     const { student, sessions } = req.body;
     if (sessions.length < 1) {
-        res.status(400).json({error: true, msg: "No sessions selected for invoice"});
+        logger.debug("Not enough sessions");
+        res.status(400).json({error: true, msg: "Please select up to 8 sessions"});
+        return;
+    }
+    else if (sessions.length > 8) {
+        logger.debug("Too many sessions");
+        res.status(400).json({error: true, msg: "Please select up to 8 sessions"});
         return;
     }
 

@@ -17,7 +17,7 @@ const openDetails = (class_id) => {
             <span v-if="selected" class="table-text check-table"><label class="screen-reader-only" :for="`${id}-checkbox`">Use in invoice</label><input :id="`${id}-checkbox`" type="checkbox" checked @change="emit('selected')"/></span>
             <span v-else class="table-text check-table"><label class="screen-reader-only" :for="`${id}-checkbox`">Use in invoice</label><input :id="`${id}-checkbox`" type="checkbox" unchecked @change="emit('selected')"/></span>
             <!-- All the other fields -->
-            <span class="table-text id-table">{{ id }}</span>
+            <span class="table-text id-table">&nbsp;</span>
             <span class="table-text date-table">{{ format_date(time_in) }}</span>
             <span class="table-text time-table class-in">{{ format_time(time_in) }}</span>
             <span class="table-text time-table class-in">{{ format_time(time_out) }}</span>

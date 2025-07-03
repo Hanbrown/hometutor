@@ -21,7 +21,7 @@ const format_data = (data, headers) => {
         const out_time = new Date(data[i].out_time);
 
         let delta = out_time - in_time;
-        let charge = get_charge(in_time, out_time, data[i].rate);
+        let charge = get_charge(in_time, out_time-1000, data[i].rate); // Subtract 1 second from out_time to prevent rounding errors
         let delta_str = `${Math.floor(delta/3600000)}:${Math.floor((delta%3600000)/60000).toString().padEnd(2, "0")}`;
 
         let row = [

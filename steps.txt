@@ -4,7 +4,8 @@ Client
 Remove sessions without page reload
 Add and remove students without page reload
 Allow filtering of students by status
+Allow user to mark checked sessions as paid/unpaid
+Center names menu on manage page
 
 Bugs
 Adding a session and then hitting the date filter causes the new session to be hidden
-Make session ids count up from earliest to most recent without skipping

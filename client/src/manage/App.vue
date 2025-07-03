@@ -48,7 +48,7 @@ import IconButton from "../components/IconButton.vue";
                             </div>
                         </details>
                     </span>
-                    <span class="table-text id-table">#</span>
+                    <span class="table-text id-table">&nbsp;</span>
                     <span class="table-text date-table">Date</span>
                     <span class="table-text time-table">In</span>
                     <span class="table-text time-table">Out</span>
