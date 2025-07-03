@@ -1,12 +1,15 @@
+// Basics for express and mongo
 import express from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 
+// For authentication
 import passport from "passport";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import Strategy from "passport-google-oauth20/lib/strategy.js";
 
+// Utilities
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -15,7 +18,7 @@ dotenv.config();
 
 import logger from './logger.js';
 
-// Models for MongoDB
+// Routes and schemas
 import sessions from "./api/sessions.js";
 import students from "./api/students.js";
 import users from "./api/users.js";
@@ -23,6 +26,7 @@ import users from "./api/users.js";
 import User from "./schemas/User.js";
 import Student from "./schemas/Student.js";
 
+// Setup
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(bodyParser.json());
@@ -79,11 +83,9 @@ passport.use(
         failureRedirect: "/",
     }, 
     async (accessToken, refreshToken, profile, done) => {
-        logger.debug(accessToken);
-        logger.debug(refreshToken);
 
         // Create user JSON object
-        const id = profile.id;
+        const id = profile.id.toString();
         const username = profile.displayName;
         const email = profile.emails[0].value;
 
@@ -202,8 +204,9 @@ app.get("/logout", (req, res) => {
 /** Auth routes, TODO move these to a separate file **/
 app.get("/api/auth/google", passport.authenticate("google"));
 
-// This is written in Google Cloud
+// This route path is written in Google Cloud
 app.get("/api/auth/google/callback", passport.authenticate("google", {failureRedirect: "/forbidden"}), (req, res) => {
+    logger.info(req.get("referer"));
     res.cookie("displayName", req.user.username);
     res.cookie("rate", req.user.rate);
     res.redirect("/landing");
@@ -214,8 +217,11 @@ app.get("/api/auth/logout", (req, res) => {
     res.clearCookie("displayName");
     res.clearCookie("rate");
 
+    // Clear connect.sid variable in client
+    req.session.cookie.expires = new Date(Date.now());
+
     // Clear Session
-    req.session.user = null;
+    logger.debug(JSON.stringify(req.session));
     req.session.save((err) => {
         if (err) {
             logger.error(err);
