@@ -501,7 +501,7 @@ summary:hover {
     top: 170px;
     left: 4rem;
     border: solid #222 2px;
-    width: 8rem;
+    min-width: 8rem;
     background-color: #ddd;
     box-shadow: #222 0px 2px 5px;
 }
@@ -527,12 +527,12 @@ summary:hover {
 .check-list-li {
     border-bottom: solid #222 2px;
 }
-.check-list-li:last-of-type {
+/* .check-list-li:last-of-type {
     border-bottom: none;
-}
+} */
 
 .check-list-li a {
-    padding: 7px 0px 7px 0px;
+    padding: 7px;
     display: block;
     text-decoration: none;
     color: #222;

@@ -177,8 +177,9 @@ router.post("/invoice", auth, async (req, res) => {
 
     try {
         logger.info("Creating Invoice");
-        await export_pdf(student, sessions);
-        res.download(path.resolve(__dirname, "pdf", "invoice.pdf"));
+        await export_pdf(res, student, sessions);
+        res.status(200);
+        // res.download(path.resolve(__dirname, "pdf", "invoice.pdf"));
     }
     catch (err) {
         logger.error(err);

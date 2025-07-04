@@ -1,4 +1,6 @@
 Server
+Don't ceiling the duration, charge by minute (not hour)
+Check invoice generation in production
 
 Client
 Remove sessions without page reload
@@ -6,6 +8,13 @@ Add and remove students without page reload
 Allow filtering of students by status
 Allow user to mark checked sessions as paid/unpaid
 Center names menu on manage page
+Allow HHam/HHpm as a time format
+Double click (or single click) the time to edit (/manage)
+Show time in 12hr time instead of 24hr time
 
 Bugs
 Adding a session and then hitting the date filter causes the new session to be hidden
+***
+Steps: In checkbox dropdown, click check all, check paid, then click save in the bottom student menu
+Effect: Screen becomes white
+***

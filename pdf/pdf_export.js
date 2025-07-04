@@ -1,5 +1,4 @@
 import pdfkit from "pdfkit";
-import fs from "node:fs";
 import { format_date, format_time, get_charge } from "../client/src/assets/util.js";
 import path from "node:path";
 const __dirname = path.resolve(path.dirname(''));
@@ -8,8 +7,7 @@ const TIMES = path.resolve(__dirname, "pdf", "times.ttf");
 const TIMES_BI = path.resolve(__dirname, "pdf", "timesbi.ttf");
 const COMIC = path.resolve(__dirname, "pdf", "comic.ttf");
 const QR_CODE = path.resolve(__dirname, "pdf", "PayPal.JPG");
-const MAX_ROWS = 10;
-const OUTFILE = path.resolve(__dirname, "pdf", "invoice.pdf");
+const MAX_ROWS = 8;
 
 const format_data = (data, headers) => {
     let rows = [];
@@ -55,7 +53,13 @@ const format_data = (data, headers) => {
     return rows;
 };
 
-export const export_pdf = async (student, sessions) => {
+/**
+ * Send a blob of the invoice in the provided HTTP Response. The response is edited in-place
+ * @param {Response} res The HTTP Response from Express. Send using res.status(<code>);
+ * @param {Object} student Information about the student
+ * @param {Array<Object>} sessions Array of all the sessions to be used in this invoice
+ */
+export const export_pdf = async (res, student, sessions) => {
     const student_name = `${student.fname} ${student.lname}`;
     const start_date = sessions[0].in_time;
     const end_date = sessions[sessions.length-1].in_time;
@@ -130,12 +134,9 @@ export const export_pdf = async (student, sessions) => {
     });
 
     doc.end();
-    doc.pipe(fs.createWriteStream(OUTFILE));
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve("done");
-        }, 100)
-    });
+    doc.pipe(res);
+    
+    return
 };
 
 // const stu = { fname: "Pranav", lname: "Rao" };

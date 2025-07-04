@@ -171,9 +171,10 @@ app.get("/", (req, res) => {
 });
 
 app.get("/landing", auth, (req, res) => {
-        res.header('Cache-Control', 'no-store');
-        res.sendFile(resolve(__dirname, "build", "landing.html"));
-        return;
+    res.header('Cache-Control', 'no-store');
+    res.clearCookie("student");
+    res.sendFile(resolve(__dirname, "build", "landing.html"));
+    return;
 });
 
 app.get("/manage", auth, (req, res) => {
@@ -184,6 +185,7 @@ app.get("/manage/:student", auth, async (req, res) => {
     logger.debug("Manage route reached");
     if (await Student.exists({ id_short: req.params.student, user: req.user.id }) !== null) {
         res.header('Cache-Control', 'no-store');
+        res.cookie("student", req.params.student.toString());
         res.sendFile(resolve(__dirname, "build", "manage.html"));
         return;
     }
@@ -214,6 +216,7 @@ app.get("/api/auth/google/callback", passport.authenticate("google", {failureRed
 
 app.get("/api/auth/logout", (req, res) => {
     // Clear cookies
+    res.clearCookie("student");
     res.clearCookie("displayName");
     res.clearCookie("rate");
 

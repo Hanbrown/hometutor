@@ -42,8 +42,12 @@ import IconButton from "../components/IconButton.vue";
                                     <li class="check-list-li"><a href="#" @click="checkFiltered">Check All</a></li>
                                     <li class="check-list-li"><a href="#" @click="uncheckFiltered">Uncheck All</a></li>
                                     <li class="check-list-li"><a href="#" @click="viewAllSessions">View All</a></li>
-                                    <li class="check-list-li"><a href="#" @click="viewPaidSessions">Paid</a></li>
-                                    <li class="check-list-li"><a href="#" @click="viewUnpaidSessions">Unpaid</a></li>
+                                    <li class="check-list-li"><a href="#" @click="viewPaidSessions">View Paid</a></li>
+                                    <li class="check-list-li"><a href="#" @click="viewUnpaidSessions">View Unpaid</a></li>
+                                </ul>
+                                <ul class="check-list-ul">
+                                    <li class="check-list-li"><a>Mark as Paid</a></li>
+                                    <li class="check-list-li"><a>Mark as Unpaid</a></li>
                                 </ul>
                             </div>
                         </details>
@@ -91,7 +95,6 @@ export default {
     },
     async mounted() {
         this.populateUser(),
-        this.setCurrent(),
         await this.getSessions(),
         await this.getStudents(),
         this.createDateFilter()
@@ -103,13 +106,7 @@ export default {
                 rate: getCookie("rate"),
             }
         },
-        setCurrent() {
-            const arr = window.location.toString().split("/manage/");
-            if (arr.length === 2) {
-                localStorage.setItem("student", Number(arr[1]));
-            }
-        },
-        // TODO: Eventually send the cookie here
+        
         async add_session() {
             const res = await fetch(`/api/sessions/add`, {
                 method: "post",
@@ -118,7 +115,7 @@ export default {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    student: Number(localStorage.getItem("student")),
+                    student: Number(getCookie("student")),
                     in_time: Date.now()-(1000*60*60), // One hour before
                     out_time: Date.now(),
                     rate: this.CurrentStudent.rate,
@@ -144,7 +141,7 @@ export default {
             }
         },
         async getSessions() {
-            const res = await fetch(`/api/sessions/read/${localStorage.getItem("student")}`);
+            const res = await fetch(`/api/sessions/read/${getCookie("student")}`);
             const res_json = await res.json();
             if (!res_json.error) {
                 this.Sessions = res_json.data;
@@ -159,7 +156,7 @@ export default {
             const res_json = await res.json();
             if (!res_json.error) {
                 this.AllStudents = res_json.data;
-                this.CurrentStudent = res_json.data.filter(el => el.id_short === Number(localStorage.getItem("student")))[0];
+                this.CurrentStudent = res_json.data.filter(el => el.id_short === Number(getCookie("student")))[0];
             }
             else {
                 console.log(res_json.msg);
