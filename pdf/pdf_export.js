@@ -64,6 +64,7 @@ export const export_pdf = async (res, student, sessions) => {
     const start_date = sessions[0].in_time;
     const end_date = sessions[sessions.length-1].in_time;
     const num_sessions = sessions.length;
+    sessions = sessions.sort((a, b) => (new Date(a.in_time)).getTime() - (new Date(b.in_time)).getTime());
 
     const headers = ["Date", "Time In", "Time Out", "Duration", "Hourly Rate", "Charge"];
 

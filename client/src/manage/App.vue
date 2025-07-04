@@ -144,8 +144,8 @@ export default {
             const res = await fetch(`/api/sessions/read/${getCookie("student")}`);
             const res_json = await res.json();
             if (!res_json.error) {
-                this.Sessions = res_json.data;
-                this.Filtered = res_json.data;
+                this.Sessions = res_json.data.sort((a, b) => (new Date(b.in_time)).getTime() - (new Date(a.in_time)).getTime());
+                this.Filtered = res_json.data.sort((a, b) => (new Date(b.in_time)).getTime() - (new Date(a.in_time)).getTime());
             }
             else {
                 console.log(res_json.msg);

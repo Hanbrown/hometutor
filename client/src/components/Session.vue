@@ -109,61 +109,105 @@ export default {
          */
         parseTime(time) {
             // Check input for validity, return current time if invalid
-            const time_pat = /^\d{1,2}\S?\d{1,2}(\w{2})?$/;
-            if (!time_pat.test(time)) {
-                return new Date();
-            }
+            const short_pat = /^\d{1,2}\s?\w{2}$/;
+            const long_pat = /^\d{1,2}\W?\d{1,2}\s?(\w{2})?$/;
+            if (short_pat.test(time)) {
+                const delim = /\W/g; // Anything not a letter or number
+                time = time.toLowerCase();
+                time = time.replaceAll(delim, ""); // Remove delimiters and spaces
 
-            const delim = /\W/g; // Anything not a letter or number
-            time = time.toLowerCase();
-            time = time.replaceAll(delim, ""); // Remove delimiters and spaces
-
-            let meridian = false;
-            let offset = 0;
-            
-            // Trim am/pm if it's there and set adjustment variables
-            if (time.substring(time.length-2) === "am") {
-                meridian = true;
-                offset = 0;
-                time = time.substring(0, time.length-2);
-            }
-            else if (time.substring(time.length-2) === "pm") {
-                meridian = true;
-                offset = 12;
-                time = time.substring(0, time.length-2);
-            }
-
-            // Get the numbers
-            let mins, hrs;
-            mins = Number(time.substring(time.length-2));
-            hrs = Number(time.substring(0, time.length-2));
-
-            // Ignore meridian if user wrote 25 or something
-            if (hrs >= 24) {
-                meridian = false;
-            }
-
-            // Modulo so that large numbers can still be interpreted
-            mins = mins % 60;
-            hrs = hrs % 24;
-
-            // Adjust hours if meridian was provided. 12:00 is a special case
-            if (hrs < 12 && meridian) {
-                hrs += offset;
-            }
-            else if (hrs === 12 && meridian) {
-                if (offset === 0) {
-                    hrs = 0;
+                let time_obj = new Date();
+                if (time.substring(time.length-2) === "am") {
+                    let hrs = Number(time.substring(0, time.length-2));
+                    if (hrs === 12 || hrs < 0) {
+                        time_obj.setHours(0);
+                    }
+                    else if (hrs > 12) {
+                        time_obj.setHours(hrs % 12);
+                    }
+                    else {
+                        time_obj.setHours(hrs);
+                    }
+                    time_obj.setMinutes(0);
+                    time_obj.setSeconds(0);
+                    
+                    return time_obj;
+                }
+                else if (time.substring(time.length-2) === "pm") {
+                    let hrs = Number(time.substring(0, time.length-2));
+                    if (hrs > 12) {
+                        time_obj.setHours((hrs % 12) + 12);
+                    }
+                    else if (hrs === 12 || hrs <= 0) {
+                        time_obj.setHours(12);
+                    }
+                    else {
+                        time_obj.setHours(hrs+12);
+                    }
+                    time_obj.setMinutes(0);
+                    time_obj.setSeconds(0);
+                    
+                    return time_obj;
+                }
+                else {
+                    return new Date();
                 }
             }
+            else if (long_pat.test(time)) {
+                const delim = /\W/g; // Anything not a letter or number
+                time = time.toLowerCase();
+                time = time.replaceAll(delim, ""); // Remove delimiters and spaces
 
-            // Hooray, we're done!
-            let time_obj = new Date();
-            time_obj.setHours(hrs);
-            time_obj.setMinutes(mins);
-            time_obj.setSeconds(0);
+                let meridian = false;
+                let offset = 0;
+                
+                // Trim am/pm if it's there and set adjustment variables
+                if (time.substring(time.length-2) === "am") {
+                    meridian = true;
+                    offset = 0;
+                    time = time.substring(0, time.length-2);
+                }
+                else if (time.substring(time.length-2) === "pm") {
+                    meridian = true;
+                    offset = 12;
+                    time = time.substring(0, time.length-2);
+                }
 
-            return time_obj;
+                // Get the numbers
+                let mins, hrs;
+                mins = Number(time.substring(time.length-2));
+                hrs = Number(time.substring(0, time.length-2));
+
+                // Ignore meridian if user wrote 25 or something
+                if (hrs >= 24) {
+                    meridian = false;
+                }
+
+                // Modulo so that large numbers can still be interpreted
+                mins = mins % 60;
+                hrs = hrs % 24;
+
+                // Adjust hours if meridian was provided. 12:00 is a special case
+                if (hrs < 12 && meridian) {
+                    hrs += offset;
+                }
+                else if (hrs === 12 && meridian) {
+                    if (offset === 0) {
+                        hrs = 0;
+                    }
+                }
+
+                // Hooray, we're done!
+                let time_obj = new Date();
+                time_obj.setHours(hrs);
+                time_obj.setMinutes(mins);
+                time_obj.setSeconds(0);
+
+                return time_obj;
+            }
+            else {
+                return new Date();
+            }
         },
         /**
          * Delete a session

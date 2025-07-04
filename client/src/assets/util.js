@@ -14,14 +14,27 @@ export const format_date = (msec) => {
 /**
  * 
  * @param {Number} msec The number of milliseconds since epoch
- * @returns {String} The time formatted as HH:MM
+ * @returns {String} The time formatted as HH:MM a/pm, or H:MM a/pm
  */
 export const format_time = (msec) => {
     if (msec === undefined) {
         return "";
     }
     let temp_date = new Date(msec);
-    return `${temp_date.getHours().toString().padStart(2, "0")}:${temp_date.getMinutes().toString().padStart(2, "0")}`;
+    let hrs = temp_date.getHours();
+    let meridian = "am";
+    if (hrs > 12) {
+        hrs -= 12;
+        meridian = "pm";
+    }
+    else if (hrs === 12) {
+        meridian = "pm";
+    }
+    else if (hrs === 0) {
+        hrs = 12;
+    }
+    return `${hrs}:${temp_date.getMinutes().toString().padStart(2, "0")} ${meridian}`;
+
 }
 
 /**
