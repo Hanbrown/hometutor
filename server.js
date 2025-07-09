@@ -1,13 +1,11 @@
-// Basics for express and mongo
+// Basics for express and Postgres
 import express from "express";
-import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import { Pool } from "pg";
 
 // For authentication
 import passport from "passport";
 import session from "express-session";
-import MongoStore from "connect-mongo";
 import Strategy from "passport-google-oauth20/lib/strategy.js";
 import connectPgSimple from "connect-pg-simple";
 
@@ -33,20 +31,6 @@ app.use(bodyParser.json());
 const port = process.env.PORT || 8081;
 
 /** Connect to Database **/
-// Connection URI
-const db = process.env.MONGO_URI;
-mongoose
-    .connect(db)
-    // If connection is successful
-    .then(() => {
-        logger.info("Mongo Connected");
-    })
-    // If error occurs during connection
-    .catch(err => {
-        logger.error("Mongo Error");
-        logger.error(`Error: ${err.stack}`);
-    });
-
 const pgPool = new Pool({
     host: process.env.PG_HOST,
     user: process.env.PG_USER,
@@ -87,6 +71,7 @@ passport.use(
         failureRedirect: "/",
     }, 
     async (accessToken, refreshToken, profile, done) => {
+        let the_user = null;
         try {
             // Create user JSON object
             const id = profile.id.toString();
@@ -99,8 +84,6 @@ passport.use(
                 logger.error(`User ${email} not allowed`);
                 return done(null, null);
             }
-
-            let the_user = null;
 
             // Insert into DB, return existing record if it exists
             const pg_response = await pgPool.query(

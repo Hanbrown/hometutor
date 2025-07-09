@@ -10,7 +10,6 @@ import logger from '../logger.js';
 import dotenv from "dotenv" // For .env file
 dotenv.config();
 
-import User from "../schemas/User.js";
 import { Pool } from "pg";
 
 const pgPool = new Pool({
@@ -45,32 +44,18 @@ router.post("/update", auth, async (req, res) => {
             throw new Error("Invalid input");
         }
 
-        const user_id = req.user.id;
-        const docs = await User.where({ id: user_id }).find();
-        logger.debug(user_id);
-        if (docs.length !== 1) {
-            throw new Error("Internal server error");
-        }
-        else {
-            let user = docs[0];
-            user.rate = rate;
+        await pgPool.query(
+            "UPDATE users SET rate = $1 WHERE id=$2;",
+            [Number(rate), req.user.id]
+        );
+        logger.info("Updated a user");
 
-            const query = "UPDATE users SET rate = $1 RETURNING *;";
-            const pg_response = await pgPool.query(query, [rate]);
-
-            const response = await docs[0].overwrite(user).save();
-
-            logger.debug(pg_response.rows);
-            logger.debug(response);
-            logger.info("Updated a user");
-
-            res.cookie("rate", rate);
-            res.json({error: false, msg: "Updated a user"});
-            return;
-        }
+        res.cookie("rate", rate);
+        res.json({error: false, msg: "Updated a user"});
+        return;
     }
     catch (err) {
-        logger.error(err);
+        logger.error(err.stack);
         logger.error("Error while updating a user");
         res.status(404).json({error: true, msg: "Couldn't update the rate"});
         return;
