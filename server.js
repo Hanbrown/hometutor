@@ -2,12 +2,14 @@
 import express from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
+import { Pool } from "pg";
 
 // For authentication
 import passport from "passport";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import Strategy from "passport-google-oauth20/lib/strategy.js";
+import connectPgSimple from "connect-pg-simple";
 
 // Utilities
 import { dirname, resolve } from "node:path";
@@ -18,13 +20,10 @@ dotenv.config();
 
 import logger from './logger.js';
 
-// Routes and schemas
+// Routes
 import sessions from "./api/sessions.js";
 import students from "./api/students.js";
 import users from "./api/users.js";
-
-import User from "./schemas/User.js";
-import Student from "./schemas/Student.js";
 
 // Setup
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -45,8 +44,16 @@ mongoose
     // If error occurs during connection
     .catch(err => {
         logger.error("Mongo Error");
-        logger.error(`Error: ${err}`);
+        logger.error(`Error: ${err.stack}`);
     });
+
+const pgPool = new Pool({
+    host: process.env.PG_HOST,
+    user: process.env.PG_USER,
+    password: process.env.PG_PASS,
+    database: process.env.PG_DB
+});
+const pgSession = connectPgSimple(session);
 
 // Set a static asset folder
 app.use("/assets", express.static("build/assets"));
@@ -62,14 +69,11 @@ app.use(
         },
         sameSite: true,
         secure: process.env.NODE_ENV === "production",
-        store: MongoStore.create(
-            {
-                client: mongoose.connection.getClient(),
-                collectionName: String(process.env.MONGO_SESSION_STORE),
-                autoRemove: "interval",
-                autoRemoveInterval: 10 // minutes
-            }
-        )
+        store: new pgSession({
+            pool: pgPool,
+            tableName: process.env.PG_SESSION,
+            errorLog: logger.error
+        })
     })
 );
 
@@ -83,48 +87,44 @@ passport.use(
         failureRedirect: "/",
     }, 
     async (accessToken, refreshToken, profile, done) => {
+        try {
+            // Create user JSON object
+            const id = profile.id.toString();
+            const username = profile.displayName;
+            const email = profile.emails[0].value;
 
-        // Create user JSON object
-        const id = profile.id.toString();
-        const username = profile.displayName;
-        const email = profile.emails[0].value;
+            // Check if email is allowed
+            const allowlist = process.env.ALLOWLIST.split(",");
+            if (allowlist.indexOf(email) === -1) {
+                logger.error(`User ${email} not allowed`);
+                return done(null, null);
+            }
 
-        // Check if email is allowed
-        const allowlist = process.env.ALLOWLIST.split(",");
-        if (allowlist.indexOf(email) === -1) {
-            logger.error("User not allowed");
-            return done(null, null);
+            let the_user = null;
+
+            // Insert into DB, return existing record if it exists
+            const pg_response = await pgPool.query(
+                `WITH e AS(
+                 INSERT INTO users (id, username, email) VALUES($1, $2, $3) 
+                 ON CONFLICT DO NOTHING RETURNING *) 
+                 SELECT * FROM e UNION SELECT * FROM users WHERE id=$1;`, 
+                [id, username, email]
+            );
+            logger.info("SQL: " +JSON.stringify(pg_response.rows));
+
+            if (pg_response.rows.length === 1) {
+                the_user = pg_response.rows[0];
+            }
+            else {
+                throw new Error("Duplicate user found");
+            }
         }
-
-        let the_user;
-
-        // Check if user exists, create new if it doesn't
-        const doc = await User.where({ id: id }).findOne();
-        // console.log(doc);
-        if (doc === null) {
-            logger.info("No user found, creating a new one");
-            const newUser = User({id, username, email});
-            const response = await newUser.save();
-
-            the_user = {
-                id: response.id,
-                username: response.username,
-                email: response.email,
-                rate: response.rate
-            };
+        catch (err) {
+            logger.error(err.stack);
         }
-        // User exists, so send it
-        else {
-            logger.info("User found");
-            the_user = {
-                id: doc.id,
-                username: doc.username,
-                email: doc.email,
-                rate: doc.rate
-            };
+        finally {
+            return done(null, the_user);
         }
-
-        return done(null, the_user);
     })
 );
 
@@ -183,7 +183,11 @@ app.get("/manage", auth, (req, res) => {
 
 app.get("/manage/:student", auth, async (req, res) => {
     logger.debug("Manage route reached");
-    if (await Student.exists({ id_short: req.params.student, user: req.user.id }) !== null) {
+    const { rows } = await pgPool.query(
+        "SELECT * FROM students WHERE id=$1 AND gid=$2",
+        [req.params.student, req.user.id]
+    );
+    if (rows.length === 1) {
         res.header('Cache-Control', 'no-store');
         res.cookie("student", req.params.student.toString());
         res.sendFile(resolve(__dirname, "build", "manage.html"));
@@ -219,27 +223,32 @@ app.get("/api/auth/logout", (req, res) => {
     res.clearCookie("student");
     res.clearCookie("displayName");
     res.clearCookie("rate");
+    try {
+        // Clear connect.sid variable in client
+        req.session.cookie.expires = new Date(Date.now());
 
-    // Clear connect.sid variable in client
-    req.session.cookie.expires = new Date(Date.now());
-
-    // Clear Session
-    logger.debug(JSON.stringify(req.session));
-    req.session.save((err) => {
-        if (err) {
-            logger.error(err);
-        }
-
-        req.session.regenerate((err) => {
+        // Clear Session
+        logger.debug(JSON.stringify(req.session));
+        req.session.save((err) => {
             if (err) {
-                logger.error(err);
+                logger.error(err.stack);
             }
-            else {
-                logger.info("Signed out");
-            }
-            res.redirect("/logout");
+
+            req.session.regenerate((err) => {
+                if (err) {
+                    logger.error(err.stack);
+                }
+                else {
+                    logger.info("Signed out");
+                }
+                res.redirect("/logout");
+            });
         });
-    });
+    }
+    catch (err) {
+        logger.debug(err.stack);
+        res.status(500).send("Internal server error");
+    }
 });
 
 /** Start server **/
