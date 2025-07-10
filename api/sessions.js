@@ -15,6 +15,7 @@ const __dirname = path.resolve(path.dirname(''));
 
 import { export_pdf } from "../pdf/pdf_export.js";
 import { Pool } from "pg";
+import { time } from "node:console";
 
 const pgPool = new Pool({
     host: process.env.PG_HOST,
@@ -190,9 +191,17 @@ router.post("/delete", auth, async (req, res) => {
 });
 
 router.post("/invoice", auth, async (req, res) => {
-    const { student, sessions } = req.body;
-    if (student === undefined || sessions === undefined ) {
+    const { student, sessions, timezone } = req.body;
+
+    logger.debug(JSON.stringify(req.body));
+    if (student === undefined || sessions === undefined || timezone === undefined ) {
         throw new Error(`Generating invoice for student ${student} out of sessions ${JSON.stringify(sessions)} failed`);
+    }
+
+    if (timezone.length === 0) {
+        logger.debug("No timezone selected");
+        res.status(400).json({error: true, msg: "Please select a timezone for the invoice"});
+        return;
     }
 
     if (sessions.length < 1) {
@@ -208,7 +217,18 @@ router.post("/invoice", auth, async (req, res) => {
 
     try {
         logger.info("Creating Invoice");
-        await export_pdf(res, student, sessions);
+        let combined = [];
+        sessions.map((sesh) => {
+            combined.push(Number(sesh));
+        });
+
+        logger.debug(combined);
+
+        const { rows } = await pgPool.query(
+            "SELECT * FROM sessions WHERE id=ANY ($1) AND student=$2 AND gid=$3;",
+            [combined, student, req.user.id]
+        );
+        await export_pdf(res, student, rows, timezone);
         res.status(200);
     }
     catch (err) {

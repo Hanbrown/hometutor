@@ -9,7 +9,7 @@ const COMIC = path.resolve(__dirname, "pdf", "comic.ttf");
 const QR_CODE = path.resolve(__dirname, "pdf", "PayPal.JPG");
 const MAX_ROWS = 8;
 
-const format_data = (data, headers) => {
+const format_data = (data, headers, timezone) => {
     let rows = [];
     let total = 0;
 
@@ -23,9 +23,9 @@ const format_data = (data, headers) => {
         let delta_str = `${Math.floor(delta/3600000)}:${Math.floor((delta%3600000)/60000).toString().padEnd(2, "0")}`;
 
         let row = [
-            format_date(data[i].in_time),
-            format_time(data[i].in_time), // Might need to format
-            format_time(data[i].out_time), // Might need to format
+            format_date(data[i].in_time, timezone),
+            format_time(data[i].in_time, timezone), // Might need to format
+            format_time(data[i].out_time, timezone), // Might need to format
             delta_str, // Calculate?
             data[i].rate.toLocaleString("en-US", { style: "currency", currency: "USD" }),
             charge.toLocaleString("en-US", { style: "currency", currency: "USD" }), // Calculate?
@@ -58,8 +58,9 @@ const format_data = (data, headers) => {
  * @param {Response} res The HTTP Response from Express. Send using res.status(<code>);
  * @param {Object} student Information about the student
  * @param {Array<Object>} sessions Array of all the sessions to be used in this invoice
+ * @param {String} timezone A timezone like America/Chicago 
  */
-export const export_pdf = async (res, student, sessions) => {
+export const export_pdf = async (res, student, sessions, timezone) => {
     const student_name = `${student.fname} ${student.lname}`;
     const start_date = sessions[0].in_time;
     const end_date = sessions[sessions.length-1].in_time;
@@ -77,7 +78,7 @@ export const export_pdf = async (res, student, sessions) => {
     doc.font(TIMES)
         .fontSize(14)
         .text(
-            `Student: ${student_name}\nPeriod: ${format_date(start_date)}\u2013${format_date(end_date)}\nClasses: ${num_sessions}`,
+            `Student: ${student_name}\nPeriod: ${format_date(start_date, timezone)}\u2013${format_date(end_date, timezone)}\nClasses: ${num_sessions}`,
             36,
             60
         );
@@ -105,7 +106,7 @@ export const export_pdf = async (res, student, sessions) => {
     doc.rect(440, 45, 154, 80).stroke();
 
     //** Table of classes
-    const table_data = format_data(sessions, headers);
+    const table_data = format_data(sessions, headers, timezone);
     doc.font(TIMES).fontSize(14);
     doc.table({
         defaultStyle: { textAlign: "center" },

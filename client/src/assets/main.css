@@ -255,7 +255,7 @@ summary:hover {
 }
 
 #session-table {
-    margin-top: 25px;
+    margin-top: 15px;
 }
 
 #session-table * {
@@ -304,6 +304,10 @@ summary:hover {
 .student-name a {
     color: black;
     text-decoration: none;
+}
+
+.student-name a:hover {
+    text-decoration: underline;
 }
 
 .btn {
@@ -545,9 +549,15 @@ summary:hover {
     margin: 10px;
 }
 
-.session-controls input{
+.session-controls input {
     font-size: 20px;
     width: 9rem;
+}
+
+.session-controls select {
+    font-size: 20px;
+    margin-left: 15px;
+    max-width: 20rem;
 }
 
 .edit-name {

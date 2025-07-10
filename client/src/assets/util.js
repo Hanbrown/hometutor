@@ -3,12 +3,16 @@
  * @param {Number} msec The number of milliseconds since epoch
  * @returns {String} The date formatted as mm/dd/yyyy
  */
-export const format_date = (msec) => {
+export const format_date = (msec, timezone) => {
     if (msec === undefined) {
         return "";
     }
+    if (timezone === undefined) {
+        timezone = "America/Los_Angeles";
+    }
+
     let temp_date = new Date(msec);
-    return `${temp_date.getMonth()+1}/${temp_date.getDate()}/${temp_date.getFullYear()}`;
+    return new Intl.DateTimeFormat("en-US", {timeZone: timezone}).format(temp_date);
 }
 
 /**
@@ -16,25 +20,20 @@ export const format_date = (msec) => {
  * @param {Number} msec The number of milliseconds since epoch
  * @returns {String} The time formatted as HH:MM a/pm, or H:MM a/pm
  */
-export const format_time = (msec) => {
+export const format_time = (msec, timezone) => {
     if (msec === undefined) {
         return "";
     }
-    let temp_date = new Date(msec);
-    let hrs = temp_date.getHours();
-    let meridian = "am";
-    if (hrs > 12) {
-        hrs -= 12;
-        meridian = "pm";
+    if (timezone === undefined) {
+        timezone = "America/Los_Angeles";
     }
-    else if (hrs === 12) {
-        meridian = "pm";
-    }
-    else if (hrs === 0) {
-        hrs = 12;
-    }
-    return `${hrs}:${temp_date.getMinutes().toString().padStart(2, "0")} ${meridian}`;
 
+    let temp_date = new Date(msec);
+    return new Intl.DateTimeFormat("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        timeZone: timezone
+    }).format(temp_date);
 }
 
 /**
