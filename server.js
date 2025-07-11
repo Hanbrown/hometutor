@@ -32,7 +32,8 @@ const port = process.env.PORT || 8081;
 
 /** Connect to Database **/
 const pgPool = new Pool({
-    connectionString: process.env.PG_URI
+    connectionString: process.env.PG_URI,
+    rejectUnauthorized: false
 });
 const pgSession = connectPgSimple(session);
 
