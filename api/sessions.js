@@ -15,7 +15,6 @@ const __dirname = path.resolve(path.dirname(''));
 
 import { export_pdf } from "../pdf/pdf_export.js";
 import { Pool } from "pg";
-import { time } from "node:console";
 
 const pgPool = new Pool({
     host: process.env.PG_HOST,
