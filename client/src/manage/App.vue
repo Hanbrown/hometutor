@@ -109,7 +109,7 @@ export default {
         populateUser() {
             this.User = {
                 displayName: decodeURIComponent(getCookie("displayName")),
-                rate: getCookie("rate"),
+                rate: Number(getCookie("rate")),
             }
         },
         
@@ -162,7 +162,7 @@ export default {
             const res_json = await res.json();
             if (!res_json.error) {
                 this.AllStudents = res_json.data;
-                this.CurrentStudent = res_json.data.filter(el => el.id_short === Number(getCookie("student")))[0];
+                this.CurrentStudent = res_json.data.filter(el => el.id === Number(getCookie("student")))[0];
             }
             else {
                 console.log(res_json.msg);

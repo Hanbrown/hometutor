@@ -1,6 +1,6 @@
 /**
  * Router (accessed in server.js -- kept here for tidiness)
- * NOTE: To get over here, type "/api/items/[route]"
+ * NOTE: To get over here, type "/api/users/[route]"
  **/
 
 import express from "express";
@@ -12,12 +12,20 @@ dotenv.config();
 
 import { Pool } from "pg";
 
-const pgPool = new Pool({
-    connectionString: process.env.PG_URI,
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
+let pgPool;
+if (process.env.NODE_ENV === "production") {
+    pgPool = new Pool({
+        connectionString: process.env.PG_URI,
+        ssl: {
+            rejectUnauthorized: false
+        }
+    });
+}
+else {
+    pgPool = new Pool({
+        connectionString: process.env.PG_URI,
+    });
+}
 
 const auth = (req, res, next) => {
     if (process.env.NODE_ENV === "production") {

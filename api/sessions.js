@@ -10,18 +10,23 @@ import logger from '../logger.js';
 import dotenv from "dotenv" // For .env file
 dotenv.config();
 
-import path from "node:path";
-const __dirname = path.resolve(path.dirname(''));
-
-import { export_pdf } from "../pdf/pdf_export.js";
 import { Pool } from "pg";
+import { export_pdf } from "../pdf/pdf_export.js";
 
-const pgPool = new Pool({
-    connectionString: process.env.PG_URI,
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
+let pgPool;
+if (process.env.NODE_ENV === "production") {
+    pgPool = new Pool({
+        connectionString: process.env.PG_URI,
+        ssl: {
+            rejectUnauthorized: false
+        }
+    });
+}
+else {
+    pgPool = new Pool({
+        connectionString: process.env.PG_URI,
+    });
+}
 
 const auth = (req, res, next) => {
     if (process.env.NODE_ENV === "production") {
@@ -57,7 +62,7 @@ router.get("/read/:student/:id", auth, async (req, res) => {
                 student: rows[0].student,
                 in_time: rows[0].in_time,
                 out_time: rows[0].out_time,
-                rate: rows[0].rate,
+                rate: Number(rows[0].rate),
                 paid: rows[0].paid,
             }
         });
@@ -84,12 +89,14 @@ router.get("/read/:student", auth, async (req, res) => {
                 student: datum.student,
                 in_time: datum.in_time,
                 out_time: datum.out_time,
-                rate: datum.rate,
+                rate: Number(datum.rate),
                 paid: datum.paid,
                 selected: false,
             }
         });
         data.sort((a, b) => a.out_time > b.out_time);
+
+        logger.debug(JSON.stringify(data[0]));
 
         res.json({ error: false, msg: "Read all sessions", data: data});
     }
@@ -221,11 +228,11 @@ router.post("/invoice", auth, async (req, res) => {
             combined.push(Number(sesh));
         });
 
-        logger.debug(combined);
+        logger.debug(`[${combined}]`);
 
         const { rows } = await pgPool.query(
             "SELECT * FROM sessions WHERE id=ANY ($1) AND student=$2 AND gid=$3;",
-            [combined, student, req.user.id]
+            [combined, student.id, req.user.id]
         );
         await export_pdf(res, student, rows, timezone);
         res.status(200);

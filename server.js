@@ -31,12 +31,20 @@ app.use(bodyParser.json());
 const port = process.env.PORT || 8081;
 
 /** Connect to Database **/
-const pgPool = new Pool({
-    connectionString: process.env.PG_URI,
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
+let pgPool;
+if (process.env.NODE_ENV === "production") {
+    pgPool = new Pool({
+        connectionString: process.env.PG_URI,
+        ssl: {
+            rejectUnauthorized: false
+        }
+    });
+}
+else {
+    pgPool = new Pool({
+        connectionString: process.env.PG_URI,
+    });
+}
 const pgSession = connectPgSimple(session);
 
 // Set a static asset folder

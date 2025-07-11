@@ -2,6 +2,7 @@ import pdfkit from "pdfkit";
 import { format_date, format_time, get_charge } from "../client/src/assets/util.js";
 import path from "node:path";
 const __dirname = path.resolve(path.dirname(''));
+import logger from '../logger.js';
 
 const TIMES = path.resolve(__dirname, "pdf", "times.ttf");
 const TIMES_BI = path.resolve(__dirname, "pdf", "timesbi.ttf");
@@ -62,10 +63,12 @@ const format_data = (data, headers, timezone) => {
  */
 export const export_pdf = async (res, student, sessions, timezone) => {
     const student_name = `${student.fname} ${student.lname}`;
+    const num_sessions = sessions.length;
+
+    sessions = sessions.sort((a, b) => (new Date(a.in_time)).getTime() - (new Date(b.in_time)).getTime());
+    
     const start_date = sessions[0].in_time;
     const end_date = sessions[sessions.length-1].in_time;
-    const num_sessions = sessions.length;
-    sessions = sessions.sort((a, b) => (new Date(a.in_time)).getTime() - (new Date(b.in_time)).getTime());
 
     const headers = ["Date", "Time In", "Time Out", "Duration", "Hourly Rate", "Charge"];
 
@@ -73,6 +76,8 @@ export const export_pdf = async (res, student, sessions, timezone) => {
 
     //** Header
     doc.font(TIMES_BI).fontSize(25).text("Invoice", 36, 20);
+
+    logger.debug(start_date);
 
     //** Student Info -- Separate dates with an endash
     doc.font(TIMES)

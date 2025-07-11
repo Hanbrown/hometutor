@@ -48,7 +48,7 @@ export default {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    id_short: localStorage.getItem("student"),
+                    id: localStorage.getItem("student"),
                     fname: _fname,
                     lname: _lname,
                     active: _active,

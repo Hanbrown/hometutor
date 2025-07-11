@@ -12,12 +12,20 @@ dotenv.config();
 
 import { Pool } from "pg";
 
-const pgPool = new Pool({
-    connectionString: process.env.PG_URI,
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
+let pgPool;
+if (process.env.NODE_ENV === "production") {
+    pgPool = new Pool({
+        connectionString: process.env.PG_URI,
+        ssl: {
+            rejectUnauthorized: false
+        }
+    });
+}
+else {
+    pgPool = new Pool({
+        connectionString: process.env.PG_URI,
+    });
+}
 
 const auth = (req, res, next) => {
     if (process.env.NODE_ENV === "production") {
@@ -61,11 +69,11 @@ router.get("/read/:id", auth, async (req, res) => {
             error: false, 
             msg: "Read one student", 
             data: {
-                id_short: data.id_short,
+                id: data.id,
                 fname: data.fname,
                 lname: data.lname,
                 active: data.active,
-                rate: data.rate,
+                rate: Number(data.rate),
             }
         });
     }
@@ -90,11 +98,11 @@ router.get("/read", auth, async (req, res) => {
         }
         const data_res = data.map(datum => {
             return {
-                id_short: Number(datum.id),
+                id: Number(datum.id),
                 fname: datum.fname,
                 lname: datum.lname,
                 active: datum.active,
-                rate: datum.rate,
+                rate: Number(datum.rate),
             }
         });
         res.json({ error: false, msg: "Read all students", data: data_res});
@@ -131,7 +139,7 @@ router.post("/add", auth, async (req, res) => {
                 error: false, 
                 msg: "Added a student", 
                 data: {
-                    id_short: rows[0].id,
+                    id: rows[0].id,
                     fname: rows[0].fname,
                     lname: rows[0].lname,
                     active: rows[0].active,
@@ -154,11 +162,11 @@ router.post("/update", auth, async (req, res) => {
             throw new Error("Invalid input");
         }
 
-        const { id_short, fname, lname, active, rate } = req.body;
+        const { id, fname, lname, active, rate } = req.body;
 
         await pgPool.query(
             "UPDATE students SET fname=$1, lname=$2, active=$3, rate=$4 WHERE id=$5 AND gid=$6;",
-            [fname, lname, active, Number(rate), Number(id_short), req.user.id]
+            [fname, lname, active, Number(rate), Number(id), req.user.id]
         );
 
         logger.info("Updated a student");

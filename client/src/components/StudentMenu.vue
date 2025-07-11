@@ -13,9 +13,9 @@ const goToStudent = (student_id) => {
         <div class="name-list">
             <ul class="name-list-ul">
                 <li v-for="(student) in students"
-                            :key="student.id_short"
+                            :key="student.id"
                  class="name-list-li">
-                    <a @click="goToStudent(student.id_short)">{{ student.fname }}</a>
+                    <a @click="goToStudent(student.id)">{{ student.fname }}</a>
                 </li>
             </ul>
         </div>

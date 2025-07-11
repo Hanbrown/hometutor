@@ -29,8 +29,8 @@ import { getCookie } from "../assets/util";
                 <div class="row-container">
                         <new-student id="new-student-menu" class="hidden" :default="User.rate" @cancelled="toggle_new_student"></new-student>
                         <student v-for="(student) in Students"
-                            :key="student.id_short"
-                            :id="student.id_short"
+                            :key="student.id"
+                            :id="student.id"
                             :fname="student.fname" 
                             :lname="student.lname" 
                             :active="student.active.toString()"
