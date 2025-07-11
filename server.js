@@ -34,7 +34,7 @@ const port = process.env.PORT || 8081;
 const pgPool = new Pool({
     connectionString: process.env.PG_URI,
     ssl: {
-        rejectUnauthorized: false,
+        rejectUnauthorized: false
     }
 });
 const pgSession = connectPgSimple(session);
