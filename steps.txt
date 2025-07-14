@@ -1,20 +1,22 @@
+Bugs
+Standardize whether thrown error messages log to console or go to client
+Deleting all fields in session resets the time to Epoch
+Adding a student with no name does not throw an error
+Session scroll-list encroaches on rate-menu element
+charge field sometimes overcharges by an hour
+card is too short on large screens, consider making it the height of the screen
+Invoice shows only fields that are visible and checked, should use invisible checked ones as well
+
 Server
-Don't ceiling the duration, charge by minute (not hour)
-Switch student and session routes to PostgreSQL
+Upgrade to paid instance for server and database
+Buy domain (Come up with permanent name)
 
 Client
-Remove sessions without page reload
-Add and remove students without page reload
-Allow filtering of students by status
+Add, remove students without page reload
+Edit so that click-away from dropdown causes it to close
+Bigger checkbox hitbox
+bulk actions: mass delete
+increase size of timezone box on larger screens
 Allow user to mark checked sessions as paid/unpaid
-Center names menu on manage page
-Double click (or single click) the time to edit (/manage)
-
-Bugs
-Adding a session and then hitting the date filter causes the new session to be hidden
-Date filtering doesn't work if original dates are typed in
-***
-Steps: In checkbox dropdown, click check all, check paid, then click save in the bottom student menu
-Effect: Screen becomes white
-[Potentially fixed]
-***
+Allow filtering of students by status 
+Double click (or single click) the time to edit (/manage) ??

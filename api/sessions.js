@@ -14,19 +14,12 @@ import { Pool } from "pg";
 import { export_pdf } from "../pdf/pdf_export.js";
 
 let pgPool;
-if (process.env.NODE_ENV === "production") {
-    pgPool = new Pool({
-        connectionString: process.env.PG_URI,
-        ssl: {
-            rejectUnauthorized: false
-        }
-    });
-}
-else {
-    pgPool = new Pool({
-        connectionString: process.env.PG_URI,
-    });
-}
+pgPool = new Pool({
+    connectionString: process.env.PG_URI,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
 
 const auth = (req, res, next) => {
     if (process.env.NODE_ENV === "production") {
@@ -95,8 +88,6 @@ router.get("/read/:student", auth, async (req, res) => {
             }
         });
         data.sort((a, b) => a.out_time > b.out_time);
-
-        logger.debug(JSON.stringify(data[0]));
 
         res.json({ error: false, msg: "Read all sessions", data: data});
     }

@@ -13,19 +13,12 @@ dotenv.config();
 import { Pool } from "pg";
 
 let pgPool;
-if (process.env.NODE_ENV === "production") {
-    pgPool = new Pool({
-        connectionString: process.env.PG_URI,
-        ssl: {
-            rejectUnauthorized: false
-        }
-    });
-}
-else {
-    pgPool = new Pool({
-        connectionString: process.env.PG_URI,
-    });
-}
+pgPool = new Pool({
+    connectionString: process.env.PG_URI,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
 
 const auth = (req, res, next) => {
     if (process.env.NODE_ENV === "production") {

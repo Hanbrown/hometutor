@@ -5,7 +5,7 @@ main {
     padding: 20px;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, span {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
@@ -52,7 +52,7 @@ header {
 
 .nav-back {
     position: relative;
-    left: 20px;
+    left: 25px;
     top: 11px;
     font-size: 20px;
     text-decoration: none;
@@ -82,14 +82,16 @@ summary:hover {
 }
 
 .name-list {
-    position:absolute;
+    position: absolute;
     z-index: 3;
-    top: 50px;
-    left: 33%;
     border: solid #222 2px;
     width: 17rem;
     background-color: #ddd;
     box-shadow: #222 0px 3px 7px;
+    top: 50px;
+    left: 0;
+    right: 0;
+    margin-inline: auto;
 }
 
 .name-list-ul {
@@ -316,6 +318,7 @@ summary:hover {
     background-color: #eee;
     padding: 5px;
     height: 35px;
+    min-width: 37px;
     font-size: 20px;
 }
 .btn:hover {
@@ -327,49 +330,36 @@ summary:hover {
 }
 
 .btn-manage {
-    width: 40px;
-    background-color: #6fd1d4;
+    background-color: rgba(0, 0, 0, 0);
 }
 .btn-manage:hover {
-    background-color: #008c91;
+    background-color: rgba(0, 0, 0, 0.25);
 }
 .btn-manage:active {
-    background-color: #005a5d;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .btn-profile {
     height: 40px;
     min-width: 40px;
-    margin: 5px 30px 5px 0px;
+    margin: 5px 25px 5px 0px;
 }
 
 .btn-add {
-    background-color: #4aca66;
-    min-width: 35px;
+    background-color: #179732;
+    color: #FFF;
 }
 .btn-add:hover {
     background-color: #1b8532;
+    color: #FFF;
 }
 .btn-add:active {
     background-color: #196e2c;
     color: #ddd;
 }
 
-.btn-save {
-    background-color: #4aca66;
-    min-width: 35px;
-}
-.btn-save:hover {
-    background-color: #1b8532;
-}
-.btn-save:active {
-    background-color: #196e2c;
-    color: #ddd;
-}
-
 .btn-del {
     background-color: transparent;
-    min-width: 35px;
 }
 .btn-del:hover {
     background-color: #970000;
@@ -386,20 +376,37 @@ summary:hover {
 
 .btn-add-class {
     margin-left: 15px;
-    background-color: #179732;
-    color: #FFF;
-}
-.btn-add-class:hover {
-    background-color: #1b8532;
-    color: #FFF;
-}
-.btn-add-class:active {
-    background-color: #196e2c;
-    color: #ddd;
 }
 
 .btn-dates {
     margin: 0px 5px 0px 5px;
+}
+
+.spinner {
+    display: inline-block;
+    width: 29px;
+    text-align: center;
+    line-height: 29px;
+    vertical-align: middle;
+    animation-name: spin;
+    animation-duration: 0.5s;
+    animation-direction:normal;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    transform-origin: center;
+}
+
+.table-input .spinner {
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    from{
+        transform: rotateZ(0deg);
+    }
+    to{
+        transform: rotateZ(180deg);
+    }
 }
 
 #signon {
@@ -502,7 +509,7 @@ summary:hover {
 
 #session-table .check-list {
     position:absolute;
-    top: 170px;
+    top: 200px;
     left: 4rem;
     border: solid #222 2px;
     min-width: 8rem;
@@ -555,9 +562,9 @@ summary:hover {
 }
 
 .session-controls select {
-    font-size: 20px;
+    font-size: 19px;
     margin-left: 15px;
-    max-width: 20rem;
+    max-width: 18rem;
 }
 
 .edit-name {
@@ -590,7 +597,7 @@ summary:hover {
 
 .date-range {
     position: absolute;
-    right: 5px;
+    right: 20px;
     z-index: 0;
 }
 

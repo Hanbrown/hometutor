@@ -12,7 +12,7 @@ const emit = defineEmits(["cancelled"]);
         <div class="flex-25"><input id="new_student_lname" type="text" name="lname" placeholder="Last Name"></div>
         <div class="flex-20">$<input id="new_student_rate" type="text" name="new-rate" placeholder="Rate" :value="default">&nbsp;/hr</div>
         <div class="flex-20"><input id="new_student_active" type="checkbox" checked><label for="new_student_active">Active?</label></div>
-        <div class="flex-10"><icon-button classes="btn btn-save" base="save" label="Save changes" @clicked="save_new_student"></icon-button></div>
+        <div class="flex-10"><icon-button classes="btn btn-add" base="save" label="Save changes" @clicked="save_new_student"></icon-button></div>
     </div>
 </template>
 
@@ -58,13 +58,13 @@ export default {
             }
         }, 
         disableSaves() {
-            const buttons = document.querySelectorAll(".btn-save");
+            const buttons = document.querySelectorAll(".btn-add");
             for (let i = 0; i < buttons.length; i++) {
                 buttons[i].setAttribute("disabled", "disabled");
             }
         },
         enableSaves() {
-            const buttons = document.querySelectorAll(".btn-save");
+            const buttons = document.querySelectorAll(".btn-add");
             for (let i = 0; i < buttons.length; i++) {
                 buttons[i].removeAttribute("disabled");
             }

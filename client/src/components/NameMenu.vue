@@ -2,6 +2,8 @@
 import { getCookie } from '../assets/util';
 import IconButton from './IconButton.vue';
 
+const emit = defineEmits(["saved"]);
+
 </script>
 
 <template>
@@ -18,7 +20,8 @@ import IconButton from './IconButton.vue';
 
         <span v-if="(active)"><label for="active">Active</label><input type="checkbox" id="active" checked /></span>
         <span v-else><label for="active">Active</label><input type="checkbox" id="active" unchecked /></span>
-        <icon-button classes="btn btn-save" @clicked="saveClick" base="save"></icon-button>
+        <icon-button classes="btn btn-add" @clicked="saveClick" base="save"></icon-button>
+        <span class="spinner hidden"><font-awesome-icon icon="rotate" /></span>
     </div>
 </template>
 
@@ -35,28 +38,13 @@ export default {
         IconButton
     },
     methods: {
-        saveClick: async () => {
+        saveClick() {
             const _fname = document.getElementById("fname").value;
             const _lname = document.getElementById("lname").value;
             const _active = document.getElementById("active").checked;
-            const _rate = document.getElementById("rate-field").value;
+            const _rate = document.getElementById("rate-field").value.toString();
 
-            await fetch("/api/students/update", {
-                method: "post",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    id: localStorage.getItem("student"),
-                    fname: _fname,
-                    lname: _lname,
-                    active: _active,
-                    rate: _rate
-                }),
-            });
-            // const res_json = await response.json();
-            window.location.reload();
+            this.$emit("saved", {fname: _fname, lname: _lname, active: _active, rate: _rate});
         }
     }
 };

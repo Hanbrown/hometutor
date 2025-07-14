@@ -21,7 +21,11 @@ import IconButton from "../components/IconButton.vue";
             </header>
             <div class="session-controls">
                 <icon-button classes="btn btn-invoice" label="Generate invoice" @clicked="get_invoice" base="print">&nbsp;Invoice</icon-button>
-                <icon-button classes="btn btn-add-class" label="Add new class" @clicked="add_session">&nbsp;New Class</icon-button>
+                <button class="btn spinner-container hidden">
+                    <span class="spinner"><font-awesome-icon icon="rotate" /></span>
+                    Invoice
+                </button>
+                <icon-button classes="btn btn-add btn-add-class" label="Add new class" @clicked="add_session">&nbsp;New Class</icon-button>
                 <span class="date-range">
                     <label class="screen-reader-only" for="date-start">Date start</label>
                     <input type="text" id="date-start" :value="format_date(Dates.start)">
@@ -34,7 +38,7 @@ import IconButton from "../components/IconButton.vue";
             </div>
             <div class="session-controls">
                 <select id="timezone-menu">
-                    <option value="" selected>-- Select Timezone for Invoice --</option>
+                    <option value="" selected>-- Select Timzone for Invoice --</option>
                     <option v-for="(zone) in Timezones" :value="zone.utc[0]">{{ zone.text }}</option>
                 </select>
             </div>
@@ -75,6 +79,8 @@ import IconButton from "../components/IconButton.vue";
                         :time_in="sesh.in_time" 
                         :time_out="sesh.out_time" 
                         :rate="sesh.rate"
+                        @edited="editSession"
+                        @deleted="deleteSession"
                         @selected="updateFiltered(sesh.number)"
                     >
                     </session>
@@ -84,7 +90,14 @@ import IconButton from "../components/IconButton.vue";
 
                 </div>
             </div>
-            <name-menu :fname="CurrentStudent.fname" :lname="CurrentStudent.lname" :active="CurrentStudent.active" :rate="CurrentStudent.rate"></name-menu>
+            <name-menu
+                :fname="CurrentStudent.fname" 
+                :lname="CurrentStudent.lname" 
+                :active="CurrentStudent.active" 
+                :rate="CurrentStudent.rate"
+                @saved="editStudent"
+            >
+            </name-menu>
         </div>
     </main>
 </template>
@@ -112,7 +125,6 @@ export default {
                 rate: Number(getCookie("rate")),
             }
         },
-        
         async add_session() {
             const res = await fetch(`/api/sessions/add`, {
                 method: "post",
@@ -141,6 +153,7 @@ export default {
                     new_obj,
                     ...this.Filtered
                 ];
+                this.resetDateFilter();
             }
             else {
                 window.alert(res_json.msg);
@@ -169,6 +182,10 @@ export default {
             }
         },
         async get_invoice() {
+            // Show spinner and hide invoice button
+            document.querySelector(".btn-invoice").classList.add("hidden");
+            document.querySelector(".spinner-container").classList.remove("hidden");
+
             const tz = document.getElementById("timezone-menu").value;
             let selected_sessions = [];
             this.Filtered.map((el) => {
@@ -204,7 +221,165 @@ export default {
                 const res_json = await res.json();
                 window.alert(res_json.msg);
             }
+            // Hide spinner and show invoice button
+            document.querySelector(".btn-invoice").classList.remove("hidden");
+            document.querySelector(".spinner-container").classList.add("hidden");
         },
+        async editSession(payload) {
+            // Show spinner and hide save/delete button
+            document.querySelector(`#details-${payload.id} .btn-table-input .spinner`).classList.remove("hidden");
+            document.querySelector(`#details-${payload.id} .btn-table-input .btn-add`).classList.add("hidden");
+            document.querySelector(`#details-${payload.id} .btn-table-input .btn-del`).classList.add("hidden");
+
+            let date = new Date(payload.date);
+            let start = this.parseTime(payload.in_time);
+            let end = this.parseTime(payload.out_time);
+
+            start.setDate(date.getDate());
+            start.setMonth(date.getMonth());
+            start.setFullYear(date.getFullYear());
+
+            end.setDate(date.getDate());
+            end.setMonth(date.getMonth());
+            end.setFullYear(date.getFullYear());
+
+            const res = await fetch(`/api/sessions/update`, {
+                method: "post",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    student: Number(getCookie("student")),
+                    number: payload.id,
+                    paid: payload.paid,
+                    in_time: start,
+                    out_time: end,
+                    rate: payload.rate,
+                }),
+            });
+
+            const res_json = await res.json();
+            
+            if (!res_json.error) {
+                this.Sessions = this.Sessions.map((el) => {
+                    if (el.number === payload.id) {
+                        return {
+                            ...el,
+                            paid: payload.paid,
+                            in_time: start,
+                            out_time: end,
+                            rate: payload.rate
+                        }
+                    }
+                    else {
+                        return el;
+                    }
+                });
+                this.Filtered = this.Filtered.map((el) => {
+                    if (el.number === payload.id) {
+                        return {
+                            ...el,
+                            paid: payload.paid,
+                            in_time: start,
+                            out_time: end,
+                            rate: payload.rate
+                        }
+                    }
+                    else {
+                        return el;
+                    }
+                });
+            }
+            else {
+                window.alert(res_json.msg);
+            }
+
+            // Hide spinner and show save button
+            document.querySelector(`#details-${payload.id} .btn-table-input .spinner`).classList.add("hidden");
+            document.querySelector(`#details-${payload.id} .btn-table-input .btn-add`).classList.remove("hidden");
+            document.querySelector(`#details-${payload.id} .btn-table-input .btn-del`).classList.remove("hidden");
+        },
+        async deleteSession(payload) {
+            if (window.confirm("Delete this session?")) {
+                // Show spinner and hide save/delete button
+                document.querySelector(`#details-${payload.id} .btn-table-input .spinner`).classList.remove("hidden");
+                document.querySelector(`#details-${payload.id} .btn-table-input .btn-add`).classList.add("hidden");
+                document.querySelector(`#details-${payload.id} .btn-table-input .btn-del`).classList.add("hidden");
+
+                const res = await fetch(`/api/sessions/delete`, {
+                    method: "post",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        number: payload.id,
+                        student: getCookie("student"),
+                    }),
+                });
+                const res_json = await res.json();
+                if (!res_json.error) {
+                    this.Sessions = this.Sessions.filter((el) => (el.number !== payload.id));
+                    this.Filtered = this.Filtered.filter((el) => (el.number !== payload.id));
+                }
+                else {
+                    console.error(res_json.msg);
+                }
+                
+                // Hide spinner and show save button
+                document.querySelector(`#details-${payload.id} .btn-table-input .spinner`).classList.add("hidden");
+                document.querySelector(`#details-${payload.id} .btn-table-input .btn-add`).classList.remove("hidden");
+                document.querySelector(`#details-${payload.id} .btn-table-input .btn-del`).classList.remove("hidden");
+            }
+        },
+        async editStudent(payload) {
+            // Hide save button and show spinner
+            document.querySelector(".edit-name .btn-add").classList.add("hidden");
+            document.querySelector(".edit-name .spinner").classList.remove("hidden");
+
+            const _id = getCookie("student");
+            const response = await fetch("/api/students/update", {
+                method: "post",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id: _id,
+                    fname: payload.fname,
+                    lname: payload.lname,
+                    active: payload.active,
+                    rate: payload.rate
+                }),
+            });
+            const res_json = await response.json();
+
+            if (!res_json.error) {
+                this.CurrentStudent = {
+                    ...this.CurrentStudent,
+                    fname: payload.fname,
+                    lname: payload.lname,
+                    active: payload.active,
+                    rate: payload.rate
+                };
+                this.AllStudents = this.AllStudents.map((el) => {
+                    if (el.id === _id) {
+                        return this.CurrentStudent;
+                    }
+                    else {
+                        return el;
+                    }
+                });
+            }
+            else {
+                window.alert(res_json.msg);
+            }
+            // Show save button and hide spinner
+            document.querySelector(".edit-name .btn-add").classList.remove("hidden");
+            document.querySelector(".edit-name .spinner").classList.add("hidden");
+        },
+
         createDateFilter() {
             if (this.Sessions.length > 0) {
                 const start = this.Sessions[this.Sessions.length - 1].in_time;
@@ -217,6 +392,7 @@ export default {
          */
         filterDates() {
 
+            console.log("Filtering..");
             let start_str = document.getElementById("date-start").value;
             let end_str = document.getElementById("date-end").value;
 
@@ -251,7 +427,10 @@ export default {
                 this.Dates.start = start;
                 this.Dates.end = end;
 
-                this.Filtered = this.Filtered.filter((el) => ((new Date(el.in_time)) >= start && (new Date(el.in_time)) <= end));
+                this.Filtered = this.Sessions.filter((el) => {
+                    console.log(el);
+                    return (new Date(el.in_time)) >= start && (new Date(el.in_time)) <= end
+                });
             }
         },
         /**
@@ -307,6 +486,112 @@ export default {
                 return date_str;
             }
             return "invalid";
+        },
+        /**
+         * Convert a string representation of time into a Date object. The day, month, and year are today.
+         * @param time The time as a string, or current time if time is invalid
+         */
+        parseTime(time) {
+            // Check input for validity, return current time if invalid
+            const short_pat = /^\d{1,2}\s?\w{2}$/;
+            const long_pat = /^\d{1,2}\W?\d{1,2}\s?(\w{2})?$/;
+            if (short_pat.test(time)) {
+                const delim = /\W/g; // Anything not a letter or number
+                time = time.toLowerCase();
+                time = time.replaceAll(delim, ""); // Remove delimiters and spaces
+
+                let time_obj = new Date();
+                if (time.substring(time.length-2) === "am") {
+                    let hrs = Number(time.substring(0, time.length-2));
+                    if (hrs === 12 || hrs < 0) {
+                        time_obj.setHours(0);
+                    }
+                    else if (hrs > 12) {
+                        time_obj.setHours(hrs % 12);
+                    }
+                    else {
+                        time_obj.setHours(hrs);
+                    }
+                    time_obj.setMinutes(0);
+                    time_obj.setSeconds(0);
+                    
+                    return time_obj;
+                }
+                else if (time.substring(time.length-2) === "pm") {
+                    let hrs = Number(time.substring(0, time.length-2));
+                    if (hrs > 12) {
+                        time_obj.setHours((hrs % 12) + 12);
+                    }
+                    else if (hrs === 12 || hrs <= 0) {
+                        time_obj.setHours(12);
+                    }
+                    else {
+                        time_obj.setHours(hrs+12);
+                    }
+                    time_obj.setMinutes(0);
+                    time_obj.setSeconds(0);
+                    
+                    return time_obj;
+                }
+                else {
+                    return new Date();
+                }
+            }
+            else if (long_pat.test(time)) {
+                const delim = /\W/g; // Anything not a letter or number
+                time = time.toLowerCase();
+                time = time.replaceAll(delim, ""); // Remove delimiters and spaces
+
+                let meridian = false;
+                let offset = 0;
+                
+                // Trim am/pm if it's there and set adjustment variables
+                if (time.substring(time.length-2) === "am") {
+                    meridian = true;
+                    offset = 0;
+                    time = time.substring(0, time.length-2);
+                }
+                else if (time.substring(time.length-2) === "pm") {
+                    meridian = true;
+                    offset = 12;
+                    time = time.substring(0, time.length-2);
+                }
+
+                // Get the numbers
+                let mins, hrs;
+                mins = Number(time.substring(time.length-2));
+                hrs = Number(time.substring(0, time.length-2));
+
+                // Ignore meridian if user wrote 25 or something
+                if (hrs >= 24) {
+                    meridian = false;
+                }
+
+                // Modulo so that large numbers can still be interpreted
+                mins = mins % 60;
+                hrs = hrs % 24;
+
+                // Adjust hours if meridian was provided. 12:00 is a special case
+                if (hrs < 12 && meridian) {
+                    hrs += offset;
+                }
+                else if (hrs === 12 && meridian) {
+                    if (offset === 0) {
+                        hrs = 0;
+                    }
+                }
+
+                // Hooray, we're done!
+                let time_obj = new Date();
+                time_obj.setHours(hrs);
+                time_obj.setMinutes(mins);
+                time_obj.setSeconds(0);
+
+                return time_obj;
+            }
+            else {
+                return new Date();
+            }
         }
     },
     // Timezones copied from https://github.com/dmfilipenko/timezones.json/blob/master/timezones.json

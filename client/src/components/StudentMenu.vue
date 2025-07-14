@@ -1,7 +1,6 @@
 <script setup>
 
 const goToStudent = (student_id) => {
-    localStorage.setItem("student", student_id);
     window.location.href = `/manage/${student_id}`;
 }
 

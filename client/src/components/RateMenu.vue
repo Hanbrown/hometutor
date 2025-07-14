@@ -7,7 +7,7 @@ const emit = defineEmits(["saved"]);
         <label>Default Rate: $</label>
         <input id="rate-field" type="text" :value="default" />
         <label>/hour&nbsp;</label>
-        <icon-button classes="btn btn-save" label="Save rate" base="save" @clicked="emit(`saved`)"></icon-button>
+        <icon-button classes="btn btn-add" label="Save rate" base="save" @clicked="emit(`saved`)"></icon-button>
     </div>
 </template>
 

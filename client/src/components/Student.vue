@@ -4,7 +4,6 @@ import IconButton from "./IconButton.vue";
 import { getCookie } from "../assets/util";
 
 const goToStudent = (student_id) => {
-    localStorage.setItem("student", student_id);
     window.location.href = `/manage/${student_id}`;
 }
 </script>
