@@ -188,12 +188,11 @@ export default {
 
             const tz = document.getElementById("timezone-menu").value;
             let selected_sessions = [];
-            this.Filtered.map((el) => {
+            this.Sessions.map((el) => {
                 if (el.selected) {
                     selected_sessions.push(el.number);
                 }
             });
-            selected_sessions = selected_sessions.sort((a, b) => a > b);
             console.log(selected_sessions);
 
             const res = await fetch("/api/sessions/invoice", {
@@ -233,15 +232,15 @@ export default {
                 document.querySelector(`#details-${payload.id} .btn-table-input .btn-del`).classList.add("hidden");
 
                 // If anything is null, throw error
-                // if (
-                //     payload.id <= 0 ||
-                //     payload.date === "" ||
-                //     payload.in_time === "" ||
-                //     payload.out_time === "" ||
-                //     payload.rate <= 0
-                // ) {
-                //     throw new Error();
-                // }
+                if (
+                    payload.id <= 0 ||
+                    payload.date === "" ||
+                    payload.in_time === "" ||
+                    payload.out_time === "" ||
+                    payload.rate <= 0
+                ) {
+                    throw new Error();
+                }
 
                 let date = new Date(payload.date);
                 let start = this.parseTime(payload.in_time);
@@ -279,8 +278,8 @@ export default {
                             return {
                                 ...el,
                                 paid: payload.paid,
-                                in_time: start,
-                                out_time: end,
+                                in_time: start.toString(),
+                                out_time: end.toString(),
                                 rate: payload.rate
                             }
                         }
@@ -456,6 +455,8 @@ export default {
          * Show all classes and reset the date fields
          */
         resetDateFilter() {
+            this.Sessions = this.Sessions.sort((a, b) => ((new Date(a.out_time)) < (new Date(b.out_time))));
+            this.Filtered = this.Filtered.sort((a, b) => ((new Date(a.out_time)) < (new Date(b.out_time))));
             this.createDateFilter();
             this.viewAllSessions();
         },

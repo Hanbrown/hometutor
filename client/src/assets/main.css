@@ -11,7 +11,7 @@ h1, h2, h3, h4, h5, h6, span {
 
 .tile {
     width: 50%;
-    height: 700px;
+    height: 90vh;
     background-color: #ddd;
     border-radius: 20px;
     box-shadow: -3px 3px 20px black;
@@ -142,7 +142,7 @@ summary:hover {
 #rate-menu {
     position: absolute;
     bottom: 10px;
-    left: 10px;
+    left: 30px;
 }
 
 #rate-menu *{
@@ -232,8 +232,13 @@ summary:hover {
     flex: 20%;
     text-align: center;
 }
+.check-table input {
+    transform: scale(1.5);
+}
+
 .check-table-input input {
     width: 20%;
+    transform: scale(1.5);
 }
 
 .btn-table-input {
@@ -266,7 +271,7 @@ summary:hover {
 }
 
 .row-container {
-    max-height: 430px;
+    height: 55vh;
     overflow-y: scroll;
 }
 
@@ -355,7 +360,7 @@ summary:hover {
 }
 .btn-add:active {
     background-color: #196e2c;
-    color: #ddd;
+    color: #aaa;
 }
 
 .btn-del {
@@ -510,7 +515,7 @@ summary:hover {
 #session-table .check-list {
     position:absolute;
     top: 200px;
-    left: 4rem;
+    left: 2.5rem;
     border: solid #222 2px;
     min-width: 8rem;
     background-color: #ddd;
@@ -564,7 +569,7 @@ summary:hover {
 .session-controls select {
     font-size: 19px;
     margin-left: 15px;
-    max-width: 18rem;
+    max-width: 40%;
 }
 
 .edit-name {

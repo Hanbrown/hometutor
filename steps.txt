@@ -1,8 +1,4 @@
 Bugs
-Session scroll-list encroaches on rate-menu element
-charge field sometimes overcharges by an hour
-card is too short on large screens, consider making it the height of the screen
-Invoice shows only fields that are visible and checked, should use invisible checked ones as well
 
 Server
 Move input processing and validation to server
@@ -10,11 +6,8 @@ Upgrade to paid instance for server and database
 Buy domain (Come up with permanent name)
 
 Client
-Add, remove students without page reload
 Edit so that click-away from dropdown causes it to close
-Bigger checkbox hitbox
 bulk actions: mass delete
-increase size of timezone box on larger screens
 Allow user to mark checked sessions as paid/unpaid
-Allow filtering of students by status 
+Allow filtering of students by status
 Double click (or single click) the time to edit (/manage) ??

@@ -27,7 +27,13 @@ import { getCookie } from "../assets/util";
                     </span>
                 </div>
                 <div class="row-container">
-                        <new-student id="new-student-menu" class="hidden" :default="User.rate" @cancelled="toggle_new_student"></new-student>
+                        <new-student
+                            id="new-student-menu" 
+                            class="hidden" 
+                            :default="User.rate" 
+                            @cancelled="toggle_new_student" 
+                            @saved="save_new_student"
+                        ></new-student>
                         <student v-for="(student) in Students"
                             :key="student.id"
                             :id="student.id"
@@ -65,7 +71,6 @@ export default {
                 rate: getCookie("rate"),
             }
         },
-        // TODO: Eventually send the cookie here
         async getStudents() {
             const res = await fetch(`/api/students/read`);
             const res_json = await res.json();
@@ -74,6 +79,49 @@ export default {
             }
             else {
                 console.log("Error");
+            }
+        },
+        async save_new_student(payload) {    
+            try {
+                // Show spinner and hide save button
+                document.querySelector(`.add-menu .spinner`).classList.remove("hidden");
+                document.querySelector(`.add-menu .btn-add`).classList.add("hidden");
+
+                let new_student = {
+                    fname: payload.fname,
+                    lname: payload.lname,
+                    active: payload.active,
+                    rate: payload.rate
+                };
+
+                const res = await fetch("/api/students/add", {
+                    method: "post",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(new_student),
+                });
+                const res_json = await res.json();
+                if (!res_json.error) {
+                    new_student["id"] = res_json.data.id;
+                    this.Students = [
+                        ...this.Students,
+                        new_student
+                    ];
+                }
+                else {
+                    window.alert(res_json.msg);
+                }
+            }
+            catch (err) {
+                console.log(err);
+                window.alert("An error occurred");
+            }
+            finally {
+                // Hide spinner and show save button
+                document.querySelector(`.add-menu .spinner`).classList.add("hidden");
+                document.querySelector(`.add-menu .btn-add`).classList.remove("hidden");
             }
         },
         async save_rate() {
@@ -92,11 +140,11 @@ export default {
                 })
             });
             const res_json = await res.json();
-            if (res_json.error) {
-                window.alert(res_json.msg);
+            if (!res_json.error) {
+                this.User.rate = _rate;
             }
             else {
-                this.User.rate = _rate;
+                window.alert(res_json.msg);
             }            
             document.querySelector("#rate-menu .btn-add").classList.remove("hidden");
             document.querySelector("#rate-menu .spinner").classList.add("hidden");
