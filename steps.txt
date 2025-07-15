@@ -6,7 +6,6 @@ Upgrade to paid instance for server and database
 Buy domain (Come up with permanent name)
 
 Client
-Edit so that click-away from dropdown causes it to close
 bulk actions: mass delete
 Allow user to mark checked sessions as paid/unpaid
 Allow filtering of students by status

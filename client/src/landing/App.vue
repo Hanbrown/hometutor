@@ -75,7 +75,14 @@ export default {
             const res = await fetch(`/api/students/read`);
             const res_json = await res.json();
             if (!res_json.error) {
-                this.Students = res_json.data;
+                // Return an array with active students, sorted by first name, above inactive students, also sorted by first name
+                let data_active = res_json.data.filter((datum) => datum.active);
+                let data_inactive = res_json.data.filter((datum) => !datum.active);
+
+                data_active = data_active.sort((a, b) => a.fname > b.fname);
+                data_inactive = data_inactive.sort((a, b) => a.fname > b.fname);
+
+                this.Students = data_active.concat(data_inactive);
             }
             else {
                 console.log("Error");
@@ -106,8 +113,8 @@ export default {
                 if (!res_json.error) {
                     new_student["id"] = res_json.data.id;
                     this.Students = [
-                        ...this.Students,
-                        new_student
+                        new_student,
+                        ...this.Students
                     ];
                 }
                 else {

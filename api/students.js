@@ -160,7 +160,7 @@ router.post("/update", auth, async (req, res) => {
         if (req.body === undefined) {
             throw new Error("Invalid input");
         }
-        console.log(req.body);
+        logger.info(JSON.stringify(req.body));
         const { id, fname, lname, active, rate } = req.body;
         if (id === undefined || fname === undefined || lname === undefined || active === undefined || rate === undefined) {
             throw new Error("Invalid input");

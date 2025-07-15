@@ -254,6 +254,11 @@ export default {
                 end.setMonth(date.getMonth());
                 end.setFullYear(date.getFullYear());
 
+                // If end time is less than start time, class went overnight. Advance the day
+                if (end.getHours() < start.getHours()) {
+                    end.setDate(date.getDate() + 1);
+                }
+
                 const res = await fetch(`/api/sessions/update`, {
                     method: "post",
                     headers: {

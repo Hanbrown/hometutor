@@ -520,6 +520,7 @@ summary:hover {
     min-width: 8rem;
     background-color: #ddd;
     box-shadow: #222 0px 2px 5px;
+    z-index: 2;
 }
 
 .table-input {
