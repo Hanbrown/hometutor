@@ -45,12 +45,12 @@ export default {
                         rate: rate
                     }),
                 });
-                const data = await res.json();
-                if (data.error !== true) {
+                const res_json = await res.json();
+                if (res_json.error !== true) {
                     window.location.reload();
                 }
                 else {
-                    window.alert("Error, please try again");
+                    window.alert(res_json.msg);
                 }
             }
             catch (err) {

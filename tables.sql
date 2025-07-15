@@ -16,7 +16,6 @@ CREATE TABLE IF NOT EXISTS "users"
 (
     id text NOT NULL,
     username text,
-    email text,
     rate numeric NOT NULL DEFAULT 60.00,
     CONSTRAINT users_pkey PRIMARY KEY (id)
 );

@@ -8,6 +8,7 @@ const emit = defineEmits(["saved"]);
         <input id="rate-field" type="text" :value="default" />
         <label>/hour&nbsp;</label>
         <icon-button classes="btn btn-add" label="Save rate" base="save" @clicked="emit(`saved`)"></icon-button>
+        <span class="spinner hidden"><font-awesome-icon icon="rotate" /></span>
     </div>
 </template>
 

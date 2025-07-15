@@ -77,6 +77,9 @@ export default {
             }
         },
         async save_rate() {
+            document.querySelector("#rate-menu .btn-add").classList.add("hidden");
+            document.querySelector("#rate-menu .spinner").classList.remove("hidden");
+
             const _rate = document.getElementById("rate-field").value;
             const res = await fetch(`/api/users/update`, {
                 method: "post",
@@ -88,12 +91,16 @@ export default {
                     rate: _rate
                 })
             });
-            if (res.error) {
-                window.alert(res.msg);
+            const res_json = await res.json();
+            if (res_json.error) {
+                window.alert(res_json.msg);
             }
             else {
                 this.User.rate = _rate;
-            }
+            }            
+            document.querySelector("#rate-menu .btn-add").classList.remove("hidden");
+            document.querySelector("#rate-menu .spinner").classList.add("hidden");
+
         },
         toggle_new_student() {
             document.getElementById("new-student-menu").classList.toggle("hidden");

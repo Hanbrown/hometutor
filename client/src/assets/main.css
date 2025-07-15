@@ -266,7 +266,7 @@ summary:hover {
 }
 
 .row-container {
-    max-height: 450px;
+    max-height: 430px;
     overflow-y: scroll;
 }
 
@@ -599,6 +599,10 @@ summary:hover {
     position: absolute;
     right: 20px;
     z-index: 0;
+}
+
+.date-range input {
+    width: 7rem;
 }
 
 .container {

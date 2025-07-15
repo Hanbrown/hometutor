@@ -1,17 +1,22 @@
+const isValidDate = (d) => {
+    return d instanceof Date && !isNaN(d);
+}
+
 /**
  * 
  * @param {Number} msec The number of milliseconds since epoch
  * @returns {String} The date formatted as mm/dd/yyyy
  */
 export const format_date = (msec, timezone) => {
-    if (msec === undefined) {
+    
+    let temp_date = new Date(msec);
+    if (isNaN(temp_date.getTime())) {
         return "";
     }
-    if (timezone === undefined) {
+    if (timezone === undefined || timezone === "") {
         timezone = "America/Los_Angeles";
     }
 
-    let temp_date = new Date(msec);
     return new Intl.DateTimeFormat("en-US", {timeZone: timezone}).format(temp_date);
 }
 
@@ -21,14 +26,15 @@ export const format_date = (msec, timezone) => {
  * @returns {String} The time formatted as HH:MM a/pm, or H:MM a/pm
  */
 export const format_time = (msec, timezone) => {
-    if (msec === undefined) {
+    let temp_date = new Date(msec);
+
+    if (isNaN(temp_date.getTime())) {
         return "";
     }
-    if (timezone === undefined) {
+    if (timezone === undefined || timezone === "") {
         timezone = "America/Los_Angeles";
     }
 
-    let temp_date = new Date(msec);
     return new Intl.DateTimeFormat("en-US", {
         hour: "numeric",
         minute: "numeric",

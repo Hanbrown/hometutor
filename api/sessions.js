@@ -63,7 +63,7 @@ router.get("/read/:student/:id", auth, async (req, res) => {
     catch(err) {
         logger.error(err.stack);
         logger.error("Error getting one session");
-        res.json({error: true, msg: "Error!"});
+        res.status(400).json({error: true, msg: "Error!"});
     }
 });
 
@@ -94,7 +94,7 @@ router.get("/read/:student", auth, async (req, res) => {
     catch(err) {
         logger.error("Error getting all sessions");
         logger.error(err.stack);
-        res.json({error: true, msg: "Error!"});
+        res.status(400).json({error: true, msg: "Error!"});
     }
 });
 
@@ -104,10 +104,12 @@ router.post("/add", auth, async (req, res) => {
         const { student, in_time, out_time, rate, paid } = req.body;
 
         // Validation
-        if ( student === undefined || in_time === undefined || out_time === undefined || rate === undefined || paid === undefined ) {
+        if ( student === undefined || in_time === undefined || out_time === undefined || rate === undefined || paid === undefined ||
+            student === null || in_time === null || out_time === null || rate === null || paid === null
+         ) {
             logger.error("Error adding a session");
             logger.error(JSON.stringify(req.body));
-            res.json({error: true, msg: "Invalid input"});
+            throw new Error("Invalid input");
         }
 
         let in_time_obj = new Date(in_time);
@@ -140,7 +142,7 @@ router.post("/add", auth, async (req, res) => {
         logger.debug(JSON.stringify(req.body));
         logger.error(err.stack);
         logger.error("Adding a session failed");
-        res.json({error: true, msg: "Error!"});
+        res.status(400).json({error: true, msg: "Error!"});
     }
 });
 
@@ -148,6 +150,16 @@ router.post("/update", auth, async (req, res) => {
     try {
         logger.info("Updating a session");
         const { number, student, in_time, out_time, rate, paid } = req.body;
+        
+        if (number === undefined || in_time === undefined || out_time === undefined || rate === undefined || paid === undefined) {
+            throw new Error("Invalid input");
+        }
+        if (number === null || in_time === null || out_time === null || rate === null || paid === null) {
+            throw new Error("Invalid input");
+        }        
+        if (number === "" || in_time === "" || out_time === "" || Number(rate) <= 0) {
+            throw new Error("Invalid input");
+        }
 
         logger.debug(JSON.stringify(req.body));
         await pgPool.query(
@@ -158,9 +170,9 @@ router.post("/update", auth, async (req, res) => {
         res.json({error: false, msg: "Updated a session"});
     }
     catch (err) {
-        logger.error(err.stack);
         logger.error("Error updating a session entry");
-        res.json({err: true, msg: "Couldn't update the session"});
+        logger.error(err.stack);
+        res.status(400).json({error: true, msg: "Invalid input"});
     }
 });
 
@@ -181,9 +193,9 @@ router.post("/delete", auth, async (req, res) => {
         res.json({error: false, msg: "Deleted a session"});
     }
     catch (err) {
-        logger.error(err.stack);
         logger.error("Error deleting a session");
-        res.json({error: true, msg: "Couldn't delete the session"});
+        logger.error(err.stack);
+        res.status(400).json({error: true, msg: "Invalid input"});
     }
 });
 
@@ -229,9 +241,9 @@ router.post("/invoice", auth, async (req, res) => {
         res.status(200);
     }
     catch (err) {
+        logger.error("Error creating an invoice");
         logger.error(err.stack);
         logger.info(JSON.stringify(req.body));
-        logger.error("Error creating an invoice");
         res.status(400).json({error: true, msg: "Error processing request"});
     }
 });

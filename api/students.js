@@ -73,7 +73,7 @@ router.get("/read/:id", auth, async (req, res) => {
     catch (err) {
         logger.error("Error getting one student");
         logger.error(err.stack);
-        res.json({error: true, msg: "Error!"});
+        res.status(400).json({error: true, msg: "Error!"});
     }
 });
 
@@ -103,7 +103,7 @@ router.get("/read", auth, async (req, res) => {
     catch(err) {
         logger.error(`Error in /read: ${req.originalUrl}`);
         logger.error(err.stack);
-        res.json({error: true, msg: "Error!"});
+        res.status(400).json({error: true, msg: "Error!"});
     }
 });
 
@@ -114,12 +114,18 @@ router.post("/add", auth, async (req, res) => {
         if (fname === undefined || lname === undefined || active === undefined || rate === undefined) {
             throw new Error("Invalid input");
         }
+        if (fname === null || lname === null || active === null || rate === null) {
+            throw new Error("Invalid input");
+        }        
+        if (fname === "" || lname === "" || Number(rate) <= 0) {
+            throw new Error("Invalid input");
+        }
 
         logger.debug(JSON.stringify(req.body));
 
         const { rows } = await pgPool.query(
             "INSERT INTO students (fname, lname, active, rate, gid) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
-            [fname, lname, active, rate, req.user.id]
+            [fname, lname, active, Number(rate), req.user.id]
         );
 
         logger.debug(JSON.stringify(rows));
@@ -144,7 +150,7 @@ router.post("/add", auth, async (req, res) => {
     catch(err) {
         logger.error(`Error in students/add: ${JSON.stringify(req.body)}`);
         logger.error(err.stack);
-        res.json({error: true, msg: "Error!"});
+        res.status(400).json({error: true, msg: "Invalid input"});
     }
 });
 
@@ -154,9 +160,18 @@ router.post("/update", auth, async (req, res) => {
         if (req.body === undefined) {
             throw new Error("Invalid input");
         }
-
+        console.log(req.body);
         const { id, fname, lname, active, rate } = req.body;
-
+        if (id === undefined || fname === undefined || lname === undefined || active === undefined || rate === undefined) {
+            throw new Error("Invalid input");
+        }
+        if (id === null || fname === null || lname === null || active === null || rate === null) {
+            throw new Error("Invalid input");
+        }
+        if (id === "" || fname === "" || lname === "" || active === "" || rate === "") {
+            throw new Error("Invalid input");
+        }
+        
         await pgPool.query(
             "UPDATE students SET fname=$1, lname=$2, active=$3, rate=$4 WHERE id=$5 AND gid=$6;",
             [fname, lname, active, Number(rate), Number(id), req.user.id]
@@ -168,7 +183,7 @@ router.post("/update", auth, async (req, res) => {
     catch(err) {
         logger.error(`Error in students/update: ${JSON.stringify(req.body)}`);
         logger.error(err.stack);
-        res.json({error: true, msg: "Couldn't update the student"});
+        res.status(400).json({error: true, msg: "Invalid input"});
     }
 });
 
@@ -195,7 +210,7 @@ router.delete("/delete", auth, async (req, res) => {
     catch (err) {
         logger.error(`Error in students/read: ${req.params}`);
         logger.error(err);
-        res.json({error: true, msg: "Couldn't delete"});
+        res.status(400).json({error: true, msg: "Couldn't delete"});
     }
 });
 

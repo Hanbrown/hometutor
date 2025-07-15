@@ -1,13 +1,11 @@
 Bugs
-Standardize whether thrown error messages log to console or go to client
-Deleting all fields in session resets the time to Epoch
-Adding a student with no name does not throw an error
 Session scroll-list encroaches on rate-menu element
 charge field sometimes overcharges by an hour
 card is too short on large screens, consider making it the height of the screen
 Invoice shows only fields that are visible and checked, should use invisible checked ones as well
 
 Server
+Move input processing and validation to server
 Upgrade to paid instance for server and database
 Buy domain (Come up with permanent name)
 

@@ -41,7 +41,7 @@ router.post("/update", auth, async (req, res) => {
         logger.debug(JSON.stringify(req.body));
         const { rate } = req.body;
 
-        if (rate === undefined) {
+        if (rate === undefined || rate <= 0) {
             throw new Error("Invalid input");
         }
 
@@ -56,9 +56,9 @@ router.post("/update", auth, async (req, res) => {
         return;
     }
     catch (err) {
-        logger.error(err.stack);
         logger.error("Error while updating a user");
-        res.status(404).json({error: true, msg: "Couldn't update the rate"});
+        logger.error(err.stack);
+        res.status(404).json({error: true, msg: "Invalid Input"});
         return;
     }
 });

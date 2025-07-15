@@ -226,79 +226,98 @@ export default {
             document.querySelector(".spinner-container").classList.add("hidden");
         },
         async editSession(payload) {
-            // Show spinner and hide save/delete button
-            document.querySelector(`#details-${payload.id} .btn-table-input .spinner`).classList.remove("hidden");
-            document.querySelector(`#details-${payload.id} .btn-table-input .btn-add`).classList.add("hidden");
-            document.querySelector(`#details-${payload.id} .btn-table-input .btn-del`).classList.add("hidden");
+            try {                
+                // Show spinner and hide save/delete button
+                document.querySelector(`#details-${payload.id} .btn-table-input .spinner`).classList.remove("hidden");
+                document.querySelector(`#details-${payload.id} .btn-table-input .btn-add`).classList.add("hidden");
+                document.querySelector(`#details-${payload.id} .btn-table-input .btn-del`).classList.add("hidden");
 
-            let date = new Date(payload.date);
-            let start = this.parseTime(payload.in_time);
-            let end = this.parseTime(payload.out_time);
+                // If anything is null, throw error
+                // if (
+                //     payload.id <= 0 ||
+                //     payload.date === "" ||
+                //     payload.in_time === "" ||
+                //     payload.out_time === "" ||
+                //     payload.rate <= 0
+                // ) {
+                //     throw new Error();
+                // }
 
-            start.setDate(date.getDate());
-            start.setMonth(date.getMonth());
-            start.setFullYear(date.getFullYear());
+                let date = new Date(payload.date);
+                let start = this.parseTime(payload.in_time);
+                let end = this.parseTime(payload.out_time);
 
-            end.setDate(date.getDate());
-            end.setMonth(date.getMonth());
-            end.setFullYear(date.getFullYear());
+                start.setDate(date.getDate());
+                start.setMonth(date.getMonth());
+                start.setFullYear(date.getFullYear());
 
-            const res = await fetch(`/api/sessions/update`, {
-                method: "post",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    student: Number(getCookie("student")),
-                    number: payload.id,
-                    paid: payload.paid,
-                    in_time: start,
-                    out_time: end,
-                    rate: payload.rate,
-                }),
-            });
+                end.setDate(date.getDate());
+                end.setMonth(date.getMonth());
+                end.setFullYear(date.getFullYear());
 
-            const res_json = await res.json();
-            
-            if (!res_json.error) {
-                this.Sessions = this.Sessions.map((el) => {
-                    if (el.number === payload.id) {
-                        return {
-                            ...el,
-                            paid: payload.paid,
-                            in_time: start,
-                            out_time: end,
-                            rate: payload.rate
-                        }
-                    }
-                    else {
-                        return el;
-                    }
+                const res = await fetch(`/api/sessions/update`, {
+                    method: "post",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        student: Number(getCookie("student")),
+                        number: payload.id,
+                        paid: payload.paid,
+                        in_time: start,
+                        out_time: end,
+                        rate: Number(payload.rate),
+                    }),
                 });
-                this.Filtered = this.Filtered.map((el) => {
-                    if (el.number === payload.id) {
-                        return {
-                            ...el,
-                            paid: payload.paid,
-                            in_time: start,
-                            out_time: end,
-                            rate: payload.rate
-                        }
-                    }
-                    else {
-                        return el;
-                    }
-                });
-            }
-            else {
-                window.alert(res_json.msg);
-            }
 
-            // Hide spinner and show save button
-            document.querySelector(`#details-${payload.id} .btn-table-input .spinner`).classList.add("hidden");
-            document.querySelector(`#details-${payload.id} .btn-table-input .btn-add`).classList.remove("hidden");
-            document.querySelector(`#details-${payload.id} .btn-table-input .btn-del`).classList.remove("hidden");
+                const res_json = await res.json();
+                
+                if (!res_json.error) {
+                    this.Sessions = this.Sessions.map((el) => {
+                        if (el.number === payload.id) {
+                            return {
+                                ...el,
+                                paid: payload.paid,
+                                in_time: start,
+                                out_time: end,
+                                rate: payload.rate
+                            }
+                        }
+                        else {
+                            return el;
+                        }
+                    });
+                    this.Filtered = this.Filtered.map((el) => {
+                        if (el.number === payload.id) {
+                            return {
+                                ...el,
+                                paid: payload.paid,
+                                in_time: start,
+                                out_time: end,
+                                rate: payload.rate
+                            }
+                        }
+                        else {
+                            return el;
+                        }
+                    });
+                }
+                else {
+                    window.alert(res_json.msg);
+                }
+
+                
+            }
+            catch {
+                window.alert("Error, invalid input");
+            }
+            finally {
+                // Hide spinner and show save button
+                document.querySelector(`#details-${payload.id} .btn-table-input .spinner`).classList.add("hidden");
+                document.querySelector(`#details-${payload.id} .btn-table-input .btn-add`).classList.remove("hidden");
+                document.querySelector(`#details-${payload.id} .btn-table-input .btn-del`).classList.remove("hidden");
+            }
         },
         async deleteSession(payload) {
             if (window.confirm("Delete this session?")) {

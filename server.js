@@ -90,10 +90,10 @@ passport.use(
             // Insert into DB, return existing record if it exists
             const pg_response = await pgPool.query(
                 `WITH e AS(
-                 INSERT INTO users (id, username, email) VALUES($1, $2, $3) 
+                 INSERT INTO users (id, username) VALUES($1, $2) 
                  ON CONFLICT DO NOTHING RETURNING *) 
                  SELECT * FROM e UNION SELECT * FROM users WHERE id=$1;`, 
-                [id, username, email]
+                [id, username]
             );
             logger.info("SQL: " +JSON.stringify(pg_response.rows));
 
